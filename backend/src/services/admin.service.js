@@ -1,5 +1,6 @@
 const { prisma } = require('../config/database');
 const { sanitizeUser } = require('../utils/userSerializer');
+const notificationService = require('./notification.service');
 const AppError = require('../utils/AppError');
 
 function buildPagination(page, limit, total) {
@@ -198,6 +199,20 @@ async function verifyNgoProfile(ngoId, decision, adminId) {
       { organizationName: existing.organizationName, status, notes }
     );
 
+    if (existing.userId) {
+      await notificationService.createNotification(
+        {
+          userId: existing.userId,
+          type: 'VERIFICATION_RESULT',
+          title: `NGO Verification ${status}`,
+          message: `Your NGO verification was ${status.toLowerCase()}.${
+            notes ? ` Notes: ${notes}` : ''
+          }`,
+        },
+        tx
+      );
+    }
+
     return ngoProfile;
   });
 }
@@ -244,6 +259,20 @@ async function verifyDonorProfile(donorId, decision, adminId) {
       donorId,
       { organizationName: existing.organizationName, status, notes }
     );
+
+    if (existing.userId) {
+      await notificationService.createNotification(
+        {
+          userId: existing.userId,
+          type: 'VERIFICATION_RESULT',
+          title: `Donor Verification ${status}`,
+          message: `Your Donor verification was ${status.toLowerCase()}.${
+            notes ? ` Notes: ${notes}` : ''
+          }`,
+        },
+        tx
+      );
+    }
 
     return donorProfile;
   });

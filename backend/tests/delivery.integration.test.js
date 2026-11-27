@@ -148,6 +148,12 @@ prisma.delivery.updateMany = async ({ where, data }) => {
   return { count };
 };
 
+prisma.notification.create = async ({ data }) => ({
+  id: crypto.randomUUID(),
+  ...data,
+  createdAt: new Date(),
+});
+
 let server;
 let baseUrl;
 let socketBaseUrl;

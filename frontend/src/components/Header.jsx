@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 
-export function Header({ currentPage, onNavigate }) {
+export function Header({ currentPage, onNavigate, unreadCount = 0 }) {
   const { user, isAuthenticated, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -30,9 +30,25 @@ export function Header({ currentPage, onNavigate }) {
         >
           Home
         </button>
+        <button
+          type="button"
+          className={`nav-button ${currentPage === 'impact' ? 'nav-active' : ''}`}
+          onClick={() => onNavigate('impact')}
+        >
+          Impact
+        </button>
 
         {isAuthenticated ? (
           <>
+            {user.role !== 'ADMIN' && (
+              <button
+                type="button"
+                className={`nav-button ${currentPage === 'role-dashboard' ? 'nav-active' : ''}`}
+                onClick={() => onNavigate('role-dashboard')}
+              >
+                Overview
+              </button>
+            )}
             {user.role === 'DONOR' && (
               <button
                 type="button"
@@ -80,6 +96,13 @@ export function Header({ currentPage, onNavigate }) {
                 Admin Dashboard
               </button>
             )}
+            <button
+              type="button"
+              className={`nav-button ${currentPage === 'notifications' ? 'nav-active' : ''}`}
+              onClick={() => onNavigate('notifications')}
+            >
+              Notifications {unreadCount > 0 ? `(${unreadCount})` : ''}
+            </button>
             <button
               type="button"
               className={`nav-button ${currentPage === 'profile' ? 'nav-active' : ''}`}

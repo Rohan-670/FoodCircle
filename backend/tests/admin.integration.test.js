@@ -152,6 +152,12 @@ prisma.auditLog.findMany = async ({ skip = 0, take = 20 }) =>
   store.auditLogs.slice(skip, skip + take);
 prisma.auditLog.count = async () => store.auditLogs.length;
 
+prisma.notification.create = async ({ data }) => ({
+  id: crypto.randomUUID(),
+  ...data,
+  createdAt: new Date(),
+});
+
 let server;
 let baseUrl;
 let adminToken;

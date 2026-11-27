@@ -10,6 +10,10 @@ async function runExpiryCheck() {
     if (expiredCount > 0) {
       logger.info(`Expiry job marked ${expiredCount} overdue donation(s) as EXPIRED.`);
     }
+    const { alertedCount } = await donationService.notifyExpiringSoonDonations();
+    if (alertedCount > 0) {
+      logger.info(`Expiry job sent approaching-expiry alert for ${alertedCount} donation(s).`);
+    }
   } catch (error) {
     logger.warn('Scheduled donation expiry check skipped (database unavailable).');
   }

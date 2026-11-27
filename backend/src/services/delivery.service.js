@@ -2,7 +2,36 @@ const crypto = require('crypto');
 const { prisma } = require('../config/database');
 const routingService = require('./routing.service');
 const deliverySocket = require('../sockets/deliverySocket');
+const notificationService = require('./notification.service');
 const AppError = require('../utils/AppError');
+
+async function notifyDeliveryParties(delivery, { type, title, message }) {
+  try {
+    const ngo = await prisma.nGOProfile?.findUnique?.({
+      where: { id: delivery.ngoId },
+      select: { userId: true },
+    });
+    const donation = await prisma.donation?.findUnique?.({
+      where: { id: delivery.donationId },
+      include: { donor: { select: { userId: true } } },
+    });
+
+    const recipientIds = new Set();
+    if (ngo?.userId) recipientIds.add(ngo.userId);
+    if (donation?.donor?.userId) recipientIds.add(donation.donor.userId);
+
+    for (const uid of recipientIds) {
+      await notificationService.createNotification({
+        userId: uid,
+        type,
+        title,
+        message,
+      });
+    }
+  } catch {
+    // Non-blocking notification helper
+  }
+}
 
 function generateSecureQrToken() {
   return crypto.randomBytes(32).toString('hex'); // 256-bit unpredictable token
@@ -291,6 +320,12 @@ async function acceptDeliveryTask(userId, deliveryId) {
     updatedAt: new Date().toISOString(),
   });
 
+  await notifyDeliveryParties(updated, {
+    type: 'DELIVERY_ASSIGNED',
+    title: 'Volunteer Assigned',
+    message: 'A volunteer has accepted the delivery task and is heading to pickup.',
+  });
+
   return sanitizeDeliveryForRole(updated, 'VOLUNTEER', true);
 }
 
@@ -507,6 +542,12 @@ async function confirmPickupByQr(userId, deliveryId, providedToken) {
     pickedUpAt: now.toISOString(),
   });
 
+  await notifyDeliveryParties(updated, {
+    type: 'PICKUP_CONFIRMED',
+    title: 'Pickup Confirmed',
+    message: 'The volunteer has confirmed food pickup via QR code.',
+  });
+
   return sanitizeDeliveryForRole(updated, 'VOLUNTEER', true);
 }
 
@@ -555,6 +596,12 @@ async function startTransit(userId, deliveryId) {
     deliveryId,
     status: updated.status,
     updatedAt: new Date().toISOString(),
+  });
+
+  await notifyDeliveryParties(updated, {
+    type: 'DELIVERY_STARTED',
+    title: 'Delivery Started',
+    message: 'The surplus food delivery is now in transit to the NGO.',
   });
 
   return sanitizeDeliveryForRole(updated, 'VOLUNTEER', true);
@@ -624,6 +671,12 @@ async function confirmDeliveryByQr(userId, deliveryId, providedToken) {
     status: updated.status,
     deliveredAt: now.toISOString(),
     isLocationSharing: false,
+  });
+
+  await notifyDeliveryParties(updated, {
+    type: 'DELIVERY_COMPLETED',
+    title: 'Delivery Completed',
+    message: 'Surplus food delivery has been confirmed via QR code.',
   });
 
   return sanitizeDeliveryForRole(updated, 'VOLUNTEER', true);

@@ -82,6 +82,11 @@ function initializeSocketIO(httpServer) {
   });
 
   ioInstance.on('connection', (socket) => {
+    // Join personal room for real-time notifications
+    if (socket.user?.id) {
+      socket.join(`user:${socket.user.id}`);
+    }
+
     socket.on('delivery:join', async ({ deliveryId }) => {
       try {
         if (!deliveryId) return;
@@ -133,9 +138,16 @@ function emitLocationStopped(deliveryId) {
   }
 }
 
+function emitUserNotification(userId, notification) {
+  if (ioInstance && userId) {
+    ioInstance.to(`user:${userId}`).emit('notification:new', notification);
+  }
+}
+
 module.exports = {
   initializeSocketIO,
   emitDeliveryStatus,
   emitVolunteerLocation,
   emitLocationStopped,
+  emitUserNotification,
 };

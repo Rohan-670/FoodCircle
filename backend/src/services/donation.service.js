@@ -1,4 +1,5 @@
 const { prisma } = require('../config/database');
+const notificationService = require('./notification.service');
 const AppError = require('../utils/AppError');
 
 const EDITABLE_STATUSES = ['AVAILABLE', 'REQUESTED'];
@@ -385,6 +386,22 @@ async function requestDonation(userId, donationId, { requestedQuantity, notes })
       });
     }
 
+    const donor = await tx.donorProfile?.findUnique?.({
+      where: { id: donation.donorId },
+      select: { userId: true },
+    });
+    if (donor?.userId) {
+      await notificationService.createNotification(
+        {
+          userId: donor.userId,
+          type: 'REQUEST_RECEIVED',
+          title: 'New Donation Request Received',
+          message: `${ngoProfile.organizationName} requested "${donation.title}".`,
+        },
+        tx
+      );
+    }
+
     return createdRequest;
   });
 }
@@ -438,6 +455,22 @@ async function respondToDonationRequest(userId, requestId, action) {
         });
       }
 
+      const rejectedNgo = await tx.nGOProfile?.findUnique?.({
+        where: { id: request.ngoId },
+        select: { userId: true },
+      });
+      if (rejectedNgo?.userId) {
+        await notificationService.createNotification(
+          {
+            userId: rejectedNgo.userId,
+            type: 'REQUEST_REJECTED',
+            title: 'Donation Request Rejected',
+            message: `Your request for "${request.donation.title}" was not accepted.`,
+          },
+          tx
+        );
+      }
+
       return { request: rejectedRequest, donationStatus: remainingPending === 0 ? 'AVAILABLE' : request.donation.status };
     }
 
@@ -482,6 +515,22 @@ async function respondToDonationRequest(userId, requestId, action) {
       data: { status: 'REJECTED' },
     });
 
+    const approvedNgo = await tx.nGOProfile?.findUnique?.({
+      where: { id: request.ngoId },
+      select: { userId: true },
+    });
+    if (approvedNgo?.userId) {
+      await notificationService.createNotification(
+        {
+          userId: approvedNgo.userId,
+          type: 'REQUEST_APPROVED',
+          title: 'Donation Request Accepted!',
+          message: `Your request for "${request.donation.title}" has been accepted. You can now request a volunteer for pickup.`,
+        },
+        tx
+      );
+    }
+
     return { request: approvedRequest, donationStatus: 'ACCEPTED' };
   });
 }
@@ -525,6 +574,44 @@ async function expireOverdueDonations() {
 }
 
 /**
+ * Notify donors when an active donation is approaching expiry (within 2 hours).
+ */
+async function notifyExpiringSoonDonations() {
+  const now = new Date();
+  const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+
+  const expiringSoon = await prisma.donation.findMany({
+    where: {
+      status: { in: EDITABLE_STATUSES },
+      expiresAt: { gt: now, lte: twoHoursFromNow },
+      expiryAlertSentAt: null,
+    },
+    include: {
+      donor: { select: { userId: true } },
+    },
+  });
+
+  for (const donation of expiringSoon) {
+    if (donation.donor?.userId) {
+      await notificationService.createNotification({
+        userId: donation.donor.userId,
+        type: 'DONATION_EXPIRING_SOON',
+        title: 'Donation Approaching Expiry',
+        message: `Your donation "${donation.title}" expires within 2 hours (${new Date(
+          donation.expiresAt
+        ).toLocaleTimeString()}).`,
+      });
+    }
+    await prisma.donation.update({
+      where: { id: donation.id },
+      data: { expiryAlertSentAt: now },
+    });
+  }
+
+  return { alertedCount: expiringSoon.length };
+}
+
+/**
  * Report a donation for food safety or compliance review by an administrator.
  */
 async function reportDonation(userId, donationId, { reason, details }) {
@@ -553,5 +640,6 @@ module.exports = {
   requestDonation,
   respondToDonationRequest,
   expireOverdueDonations,
+  notifyExpiringSoonDonations,
   reportDonation,
 };

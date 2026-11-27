@@ -53,7 +53,11 @@ enum NotificationType {
   REQUEST_APPROVED
   REQUEST_REJECTED
   DELIVERY_ASSIGNED
+  PICKUP_CONFIRMED
+  DELIVERY_STARTED
   DELIVERY_COMPLETED
+  DONATION_EXPIRING_SOON
+  VERIFICATION_RESULT
   RECOMMENDATION_INVITE
   SYSTEM_ALERT
 }
@@ -86,10 +90,11 @@ model User {
   passwordHash String
   fullName     String
   phone        String?
-  role         UserRole
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role                    UserRole
+  isActive                Boolean  @default(true)
+  notificationPreferences Json?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
   // Role-specific 1-to-1 profiles
   donorProfile     DonorProfile?
@@ -180,6 +185,7 @@ model Donation {
   storageRequirements String?
   safetyChecklist     Json?
   safetyWarnings      String[]       @default([])
+  expiryAlertSentAt   DateTime?
   status              DonationStatus @default(AVAILABLE)
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt

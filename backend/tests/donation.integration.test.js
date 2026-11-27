@@ -184,6 +184,12 @@ prisma.donationRequest.count = async ({ where }) => {
   ).length;
 };
 
+prisma.notification.create = async ({ data }) => ({
+  id: crypto.randomUUID(),
+  ...data,
+  createdAt: new Date(),
+});
+
 let server;
 let baseUrl;
 let donorToken;
