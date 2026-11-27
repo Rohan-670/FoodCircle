@@ -68,6 +68,14 @@ function errorHandler(err, req, res, next) {
     statusCode = 503;
     message = 'Database service is currently unavailable.';
     errors = null;
+  } else if (err.name === 'JsonWebTokenError') {
+    statusCode = 401;
+    message = 'Invalid authentication token.';
+    errors = null;
+  } else if (err.name === 'TokenExpiredError') {
+    statusCode = 401;
+    message = 'Authentication token has expired. Please log in again.';
+    errors = null;
   } else if (err.type === 'entity.parse.failed') {
     statusCode = 400;
     message = 'Invalid JSON payload in request body.';

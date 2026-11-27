@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const environment = require('./config/environment');
 const apiRoutes = require('./routes');
 const requestLogger = require('./middleware/requestLogger');
@@ -20,9 +21,10 @@ app.use(
 // HTTP request logging
 app.use(requestLogger);
 
-// Body parsers
+// Body parsers & cookie parser
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Root welcome endpoint
 app.get('/', (req, res) => {

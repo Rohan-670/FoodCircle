@@ -1,13 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { AuthProvider } from './context/AuthContext';
 import MainLayout from './layouts/MainLayout';
 import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import ProfilePage from './pages/ProfilePage';
 import './styles/App.css';
+
+function AppContent() {
+  const [currentPage, setCurrentPage] = useState('home');
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'login':
+        return <LoginPage onNavigate={setCurrentPage} />;
+      case 'signup':
+        return <SignupPage onNavigate={setCurrentPage} />;
+      case 'profile':
+        return <ProfilePage onNavigate={setCurrentPage} />;
+      default:
+        return <HomePage />;
+    }
+  };
+
+  return (
+    <MainLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+      {renderPage()}
+    </MainLayout>
+  );
+}
 
 export function App() {
   return (
-    <MainLayout>
-      <HomePage />
-    </MainLayout>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
