@@ -685,3 +685,445 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================================================
+   donatefood.in Civic Food-Rescue Design Extensions
+   ========================================================================== */
+
+/* Statutory Top Bar */
+.statutory-topbar {
+  background-color: var(--color-forest-dark);
+  color: #d1fae5;
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+  padding: 0.38rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.statutory-topbar-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.statutory-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 500;
+}
+
+.statutory-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #4ade80;
+}
+
+/* Role Switcher Pill */
+.role-quick-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: var(--bg-muted);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  padding: 0.18rem 0.25rem;
+}
+
+.role-pill-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.22rem 0.6rem;
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.role-pill-btn:hover {
+  color: var(--text-primary);
+}
+
+.role-pill-btn.is-active {
+  background-color: var(--color-forest);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(6, 87, 26, 0.25);
+}
+
+/* Dot Grid Hero Background */
+.hero-dot-grid {
+  background-image: radial-gradient(var(--border-strong) 1px, transparent 1px);
+  background-size: 20px 20px;
+  position: relative;
+}
+
+.hero-banner-accent {
+  background: linear-gradient(135deg, rgba(6, 87, 26, 0.06) 0%, rgba(254, 120, 1, 0.04) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2.25rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-forest) 0%, var(--color-saffron) 100%);
+}
+
+.hero-title-lead {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0.85rem 0 1rem;
+}
+
+.hero-title-highlight {
+  color: var(--color-forest);
+}
+
+.hero-cta-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.btn-pill {
+  border-radius: var(--radius-pill);
+  padding: 0.65rem 1.4rem;
+  font-size: 0.94rem;
+  font-weight: 600;
+}
+
+/* Impact KPI Grid */
+.impact-kpi-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.75rem;
+}
+
+.impact-kpi-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.1rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.impact-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-forest);
+}
+
+.impact-kpi-num {
+  font-family: var(--font-display);
+  font-size: 2.15rem;
+  font-weight: 700;
+  color: var(--color-forest);
+  line-height: 1.1;
+}
+
+.impact-kpi-sub {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 0.35rem;
+}
+
+.impact-kpi-detail {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+}
+
+/* Purpose-Built Pathway Cards */
+.pathway-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.pathway-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: var(--color-forest);
+}
+
+.pathway-card.pathway-saffron::before {
+  background-color: var(--color-saffron);
+}
+
+.pathway-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-forest);
+}
+
+.pathway-icon-bubble {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-mint);
+  color: var(--color-forest);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.pathway-icon-bubble.bubble-saffron {
+  background-color: var(--color-terracotta-soft);
+  color: var(--color-saffron);
+}
+
+/* Real-Time Proximity Geo-Locator */
+.geo-locator-shell {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin-bottom: 2.75rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.geo-locator-header {
+  background: linear-gradient(135deg, var(--color-forest) 0%, #0a4f1a 100%);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.geo-controls-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.25rem;
+}
+
+.geo-pills {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.geo-filter-pill {
+  background-color: var(--bg-muted);
+  border: 1px solid var(--border-color);
+  padding: 0.35rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.geo-filter-pill:hover {
+  background-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.geo-filter-pill.is-active {
+  background-color: var(--color-forest);
+  color: #ffffff;
+  border-color: var(--color-forest);
+}
+
+.geo-item-card {
+  background-color: var(--bg-page);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.15rem;
+  display: grid;
+  grid-template-columns: 2.2fr 1fr 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+  margin-bottom: 0.75rem;
+}
+
+.geo-item-card:hover {
+  border-color: var(--color-forest);
+  background-color: var(--bg-surface);
+}
+
+/* Safety & Statutory Protection Box */
+.statutory-shield-box {
+  background-color: var(--color-mint);
+  border: 1px solid var(--color-mint-border);
+  border-left: 5px solid var(--color-forest);
+  border-radius: var(--radius-md);
+  padding: 1.35rem 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+[data-theme='dark'] .statutory-shield-box {
+  background-color: #0d2215;
+  border-color: #1a422a;
+}
+
+.statutory-shield-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-forest);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+/* Accordion FAQ */
+.faq-accordion {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-surface);
+  overflow: hidden;
+  margin-bottom: 2.75rem;
+}
+
+.faq-row {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.faq-row:last-child {
+  border-bottom: none;
+}
+
+.faq-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  padding: 1.15rem 1.35rem;
+  background: transparent;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.faq-trigger:hover {
+  background-color: var(--bg-muted);
+}
+
+.faq-content {
+  padding: 0 1.35rem 1.25rem;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Civic Footer Enhancements */
+.footer-badge-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.footer-col-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  margin-bottom: 0.85rem;
+}
+
+.footer-link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+}
+
+.footer-link-list button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+.footer-link-list button:hover {
+  color: var(--color-forest);
+  text-decoration: underline;
+}
+
+@media (max-width: 960px) {
+  .impact-kpi-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .geo-item-card {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-title-lead {
+    font-size: 2.15rem;
+  }
+  .impact-kpi-bar {
+    grid-template-columns: 1fr;
+  }
+}

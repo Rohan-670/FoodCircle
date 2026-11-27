@@ -7,7 +7,7 @@ export function MainLayout({ children, currentPage, onNavigate }) {
     <div className="app-shell">
       <Header currentPage={currentPage} onNavigate={onNavigate} />
       <main className="main-body">{children}</main>
-      <Footer />
+      <Footer onNavigate={onNavigate} />
     </div>
   );
 }

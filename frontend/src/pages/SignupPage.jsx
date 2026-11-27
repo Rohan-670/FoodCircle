@@ -18,17 +18,23 @@ export function SignupPage({ onNavigate }) {
     password: '',
     organizationName: '',
     contactPerson: '',
+    darpanId: '',
+    fssaiLicense: '',
     address: '',
     serviceArea: '',
     coordinates: '',
     availability: 'AVAILABLE',
+    goodSamaritanConsent: true,
   });
   const [errors, setErrors] = useState({});
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
     setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
@@ -60,13 +66,13 @@ export function SignupPage({ onNavigate }) {
 
   return (
     <PageContainer
-      eyebrow="Account Registration"
-      title="Create an Organization or Volunteer Account"
-      subtitle="Select your role to provide the required coordination and safety details. Administrator accounts are provisioned separately via CLI seed."
+      eyebrow="Civic Account Registration"
+      title="Create Organization or Volunteer Account"
+      subtitle="Select your coordination role to provide FSSAI or NITI Aayog DARPAN compliance credentials. All participants are protected under statutory Good Samaritan guidelines."
     >
       <div className="auth-shell auth-shell-wide">
         <Card
-          title="Registration Form"
+          title="Institutional Registration Form"
           badge={<Badge tone="sage">Role: {role}</Badge>}
         >
           <form onSubmit={handleSubmit} className="form-stack" noValidate>
@@ -78,11 +84,11 @@ export function SignupPage({ onNavigate }) {
                 setRole(e.target.value);
                 setErrors({});
               }}
-              hint="Public signup supports Food Donors, NGOs, and Volunteers."
+              hint="Public registration supports Food Donors, NGOs, and Logistics Volunteers."
             >
-              <option value="DONOR">Food Donor (Restaurant, Caterer, Grocer)</option>
-              <option value="NGO">NGO / Community Pantry</option>
-              <option value="VOLUNTEER">Volunteer Courier</option>
+              <option value="DONOR">Food Donor (Restaurant, Hotel, Banquet, Grocer)</option>
+              <option value="NGO">NGO / Community Kitchen / Food Bank</option>
+              <option value="VOLUNTEER">Citizen Logistics Courier</option>
             </Select>
 
             {role !== 'NGO' ? (
@@ -159,25 +165,25 @@ export function SignupPage({ onNavigate }) {
                   <Input
                     id="donor-org"
                     name="organizationName"
-                    label="Business / Organization Name"
+                    label="Business / Banquet / Kitchen Name"
                     value={form.organizationName}
                     onChange={handleChange}
                     error={errors.organizationName}
                     placeholder="e.g. Saffron Courtyard Kitchen"
                   />
                   <Input
-                    id="donor-coords"
-                    name="coordinates"
-                    label="Coordinates (Optional)"
-                    value={form.coordinates}
+                    id="donor-fssai"
+                    name="fssaiLicense"
+                    label="FSSAI License / Registration No."
+                    value={form.fssaiLicense}
                     onChange={handleChange}
-                    placeholder="12.9716, 77.5946"
+                    placeholder="e.g. FSSAI-11223344009182"
                   />
                 </div>
                 <Input
                   id="donor-address"
                   name="address"
-                  label="Pickup Address"
+                  label="Kitchen / Pickup Address"
                   value={form.address}
                   onChange={handleChange}
                   error={errors.address}
@@ -187,26 +193,37 @@ export function SignupPage({ onNavigate }) {
             )}
 
             {role === 'NGO' && (
-              <div className="form-grid-2">
+              <>
+                <div className="form-grid-2">
+                  <Input
+                    id="ngo-darpan"
+                    name="darpanId"
+                    label="NITI Aayog DARPAN ID"
+                    value={form.darpanId}
+                    onChange={handleChange}
+                    placeholder="e.g. KA/2021/0149921"
+                    hint="Required for Tier 4 & Tier 5 verification."
+                  />
+                  <Input
+                    id="ngo-area"
+                    name="serviceArea"
+                    label="Service Corridor / District"
+                    value={form.serviceArea}
+                    onChange={handleChange}
+                    error={errors.serviceArea}
+                    placeholder="Central & South Wards"
+                  />
+                </div>
                 <Input
                   id="ngo-address"
                   name="address"
-                  label="Distribution Center Address"
+                  label="Distribution Center / Kitchen Address"
                   value={form.address}
                   onChange={handleChange}
                   error={errors.address}
-                  placeholder="15 Hope Shelter Lane"
+                  placeholder="15 Hope Shelter Lane, Central Ward"
                 />
-                <Input
-                  id="ngo-area"
-                  name="serviceArea"
-                  label="Service Area"
-                  value={form.serviceArea}
-                  onChange={handleChange}
-                  error={errors.serviceArea}
-                  placeholder="Central & North Wards"
-                />
-              </div>
+              </>
             )}
 
             {role === 'VOLUNTEER' && (
@@ -214,11 +231,11 @@ export function SignupPage({ onNavigate }) {
                 <Input
                   id="vol-area"
                   name="serviceArea"
-                  label="Preferred Service Area"
+                  label="Preferred Logistics Corridor"
                   value={form.serviceArea}
                   onChange={handleChange}
                   error={errors.serviceArea}
-                  placeholder="Central Ward"
+                  placeholder="Central Ward & Residency Road"
                 />
                 <Select
                   id="vol-avail"
@@ -227,11 +244,27 @@ export function SignupPage({ onNavigate }) {
                   value={form.availability}
                   onChange={handleChange}
                 >
-                  <option value="AVAILABLE">Available for Pickups</option>
-                  <option value="PAUSED">Paused (Setup Only)</option>
+                  <option value="AVAILABLE">Available for Active Pickups</option>
+                  <option value="PAUSED">Paused (Onboarding Only)</option>
                 </Select>
               </div>
             )}
+
+            {/* Good Samaritan Checkbox */}
+            <div style={{ backgroundColor: 'var(--bg-muted)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', fontSize: '0.84rem' }}>
+              <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  name="goodSamaritanConsent"
+                  checked={form.goodSamaritanConsent}
+                  onChange={handleChange}
+                  style={{ marginTop: '0.2rem' }}
+                />
+                <span>
+                  <strong>Statutory Declaration:</strong> I affirm that our operations comply with FSSAI Schedule I safety principles and act in good faith under the Supreme Court Good Samaritan guidelines.
+                </span>
+              </label>
+            </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.5rem' }}>
               <Button type="submit" size="lg">
@@ -251,19 +284,21 @@ export function SignupPage({ onNavigate }) {
       <Modal
         isOpen={previewOpen}
         onClose={() => setPreviewOpen(false)}
-        title="Static UI Preview — Registration Not Submitted"
+        title="Registration Payload Preview"
         footer={
           <Button onClick={() => setPreviewOpen(false)}>Close Preview</Button>
         }
       >
         <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', marginBottom: '0.85rem' }}>
           Form validation passed. Backend registration is disabled in this static design-system
-          phase, so no account was created.
+          phase, so no database transaction was committed.
         </p>
         <div className="info-strip">
           <strong>Selected Role:</strong> {role}
           <br />
           <strong>Email:</strong> {form.email}
+          <br />
+          <strong>Entity:</strong> {form.organizationName || form.fullName}
         </div>
       </Modal>
     </PageContainer>

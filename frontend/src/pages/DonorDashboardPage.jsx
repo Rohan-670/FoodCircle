@@ -8,23 +8,23 @@ export function DonorDashboardPage({ onNavigate }) {
 
   const sidebarItems = [
     { id: 'overview', label: 'Active & Accepted', count: 3 },
-    { id: 'requests', label: 'Incoming Requests', count: 2 },
-    { id: 'safety', label: 'Safety Checklist' },
-    { id: 'history', label: 'Completed History', count: 14 },
+    { id: 'requests', label: 'Incoming NGO Requests', count: 2 },
+    { id: 'safety', label: 'FSSAI Safety Checklist' },
+    { id: 'history', label: 'Completed Deliveries', count: 14 },
   ];
 
   const metrics = [
-    { label: 'Active Listings (Mock)', value: '2', note: 'Available or requested' },
-    { label: 'Accepted Batches (Mock)', value: '1', note: 'Awaiting pickup' },
-    { label: 'Completed (Mock)', value: '14', note: 'Confirmed via QR' },
-    { label: 'Total Meals Shared (Mock)', value: '820', note: 'Sample cumulative units' },
+    { label: 'FSSAI Registration', value: 'Verified', note: 'FSSAI-11223344009182' },
+    { label: 'Active Surplus Batches', value: '2', note: 'Within safe consumption window' },
+    { label: 'Accepted by NGOs', value: '1', note: 'Awaiting volunteer pickup' },
+    { label: 'Meals Rescued (Total)', value: '820', note: 'Good Samaritan compliant' },
   ];
 
   return (
     <DashboardLayout
-      roleLabel="Food Donor"
-      title="Saffron Courtyard Kitchen"
-      subtitle="Manage surplus food batches, safety checklists, and incoming NGO requests."
+      roleLabel="Surplus Food Donor"
+      title="Saffron Courtyard Banquets"
+      subtitle="FSSAI License: FSSAI-11223344009182 • Tier 5 Verified Commercial Kitchen"
       sidebarItems={sidebarItems}
       activeSection={section}
       onSectionChange={setSection}
@@ -35,22 +35,31 @@ export function DonorDashboardPage({ onNavigate }) {
           disabled
           title="Backend creation is disabled in static UI preview"
         >
-          + Post Surplus Batch (Preview Only)
+          + Post New Surplus Batch
         </Button>
       }
     >
+      {/* Statutory Guidance Banner */}
+      <div className="statutory-shield-box" style={{ marginBottom: '1.25rem', padding: '0.85rem 1.15rem' }}>
+        <strong style={{ color: 'var(--color-forest)' }}>Good Samaritan Statutory Shield:</strong>{' '}
+        <span style={{ fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
+          Donations made in good faith conforming to FSSAI Schedule I safety requirements are immune from liability. Ensure hot batches remain above 60°C or cold batches below 7°C.
+        </span>
+      </div>
+
       {section === 'overview' && (
         <Card
-          title="Current Surplus Batches (Mock Data)"
-          subtitle="Click any batch to inspect full safety metadata."
+          title="Active Surplus Batches (Live Tracking)"
+          subtitle="Click any batch to inspect FSSAI safety checklist and single-use QR handoff."
         >
           <div className="table-wrap">
             <table className="editorial-table">
               <thead>
                 <tr>
                   <th>Food Batch</th>
-                  <th>Quantity</th>
-                  <th>Deadline</th>
+                  <th>Dietary / Volume</th>
+                  <th>Holding Temp</th>
+                  <th>Expiry Window</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -65,9 +74,18 @@ export function DonorDashboardPage({ onNavigate }) {
                       </div>
                     </td>
                     <td>
-                      {d.quantity} {d.unit}
+                      <div><strong>{d.quantity} {d.unit}</strong></div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--color-forest)' }}>{d.dietary}</div>
                     </td>
-                    <td>{d.expiresAt}</td>
+                    <td style={{ fontSize: '0.84rem' }}>{d.holdingTemp}</td>
+                    <td>
+                      <span style={{ color: d.urgency === 'CRITICAL' ? 'var(--color-saffron)' : 'inherit', fontWeight: 600 }}>
+                        {d.expiresAt}
+                      </span>
+                      <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
+                        {d.hoursRemaining}h remaining
+                      </div>
+                    </td>
                     <td>
                       <Badge
                         tone={
@@ -87,7 +105,7 @@ export function DonorDashboardPage({ onNavigate }) {
                         size="sm"
                         onClick={() => onNavigate('details', d.id)}
                       >
-                        View Details
+                        Inspect Details →
                       </Button>
                     </td>
                   </tr>
@@ -100,49 +118,85 @@ export function DonorDashboardPage({ onNavigate }) {
 
       {section === 'requests' && (
         <Card
-          title="Incoming NGO Requests (Mock Data)"
-          subtitle="Only one NGO may be accepted per surplus batch."
+          title="Incoming NGO Allocation Requests (Mock Data)"
+          badge={<Badge tone="sage">2 PENDING</Badge>}
         >
-          <div className="form-stack">
-            <div className="info-strip" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-              <div>
-                <strong>Hope Shelter Kitchen</strong> (Verified NGO • 1.8 km away)
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                  Requested: Vegetable Pulao &amp; Lentil Curry Trays (65 servings)
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Button size="sm" disabled title="Disabled in static UI preview">
-                  Accept
-                </Button>
-                <Button variant="secondary" size="sm" disabled title="Disabled in static UI preview">
-                  Reject
-                </Button>
-              </div>
-            </div>
+          <div className="table-wrap">
+            <table className="editorial-table">
+              <thead>
+                <tr>
+                  <th>Batch</th>
+                  <th>Requesting NGO</th>
+                  <th>DARPAN ID</th>
+                  <th>Turnaround SLA</th>
+                  <th>Decision</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Vegetable Pulao &amp; Lentil Curry (65 servings)</td>
+                  <td>Mercy Community Kitchen</td>
+                  <td><span style={{ fontFamily: 'var(--font-mono)' }}>KA/2021/0149921</span></td>
+                  <td>~25 mins</td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '0.35rem' }}>
+                      <Button size="sm" disabled title="Disabled in static preview">Accept</Button>
+                      <Button size="sm" variant="ghost" disabled title="Disabled in static preview">Decline</Button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Artisan Loaves (40 loaves)</td>
+                  <td>Annapurna Relief Food Bank</td>
+                  <td><span style={{ fontFamily: 'var(--font-mono)' }}>KA/2019/0088214</span></td>
+                  <td>~35 mins</td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '0.35rem' }}>
+                      <Button size="sm" disabled title="Disabled in static preview">Accept</Button>
+                      <Button size="sm" variant="ghost" disabled title="Disabled in static preview">Decline</Button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </Card>
       )}
 
       {section === 'safety' && (
         <Card
-          title="Donor Food Safety Protocol"
-          subtitle="Safety details are donor-reported; photos do not certify food safety."
+          title="FSSAI Schedule I Donor Safety Affirmation"
+          subtitle="All surplus listings mandate four-point safety verification before NGO visibility."
         >
-          <ul style={{ paddingLeft: '1.2rem', display: 'grid', gap: '0.5rem', fontSize: '0.92rem' }}>
-            <li>Record exact preparation or collection timestamp.</li>
-            <li>Specify safe-consumption deadline and storage temperature.</li>
-            <li>Declare all known allergens (dairy, nuts, gluten, soy).</li>
-            <li>Confirm all 4 donor safety checklist items before publishing.</li>
+          <ul style={{ listStyle: 'none', display: 'grid', gap: '0.65rem', fontSize: '0.92rem' }}>
+            <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <Badge tone="mint">✓</Badge>
+              <span>Prepared in an FSSAI-registered commercial or event kitchen.</span>
+            </li>
+            <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <Badge tone="mint">✓</Badge>
+              <span>Packaged in food-grade, tamper-evident containers.</span>
+            </li>
+            <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <Badge tone="mint">✓</Badge>
+              <span>Hot holding above 60°C or rapid chilled below 7°C maintained.</span>
+            </li>
+            <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <Badge tone="mint">✓</Badge>
+              <span>Clear allergen disclosures (dairy, gluten, nuts) declared on batch label.</span>
+            </li>
           </ul>
         </Card>
       )}
 
       {section === 'history' && (
-        <Card title="Recent Completed Deliveries (Mock Data)">
+        <Card
+          title="Completed Food Rescue History (Mock Data)"
+          badge={<Badge tone="forest">14 DELIVERIES</Badge>}
+        >
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-            Sample historical record: <strong>Packaged UHT Milk &amp; Yogurt Cups</strong> (80
-            packs) delivered to <strong>Metro Community Pantry</strong> with QR confirmation.
+            14 surplus batches successfully rescued and confirmed via single-use QR handoff tokens.
+            Zero reported safety incidents or spoilage events.
           </p>
         </Card>
       )}
