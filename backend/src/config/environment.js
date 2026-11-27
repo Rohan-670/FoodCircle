@@ -15,8 +15,12 @@ const envSchema = z.object({
     .default('development'),
   CLIENT_URL: z
     .string()
-    .url('CLIENT_URL must be a valid URL')
+    .min(1)
     .default('http://localhost:5173'),
+  ROUTING_API_URL: z
+    .string()
+    .url('ROUTING_API_URL must be a valid URL')
+    .default('https://router.project-osrm.org/route/v1/driving'),
   DATABASE_URL: z
     .string()
     .min(1, 'DATABASE_URL is required')
@@ -44,10 +48,16 @@ if (!parsed.success) {
   process.exit(1);
 }
 
+const allowedOrigins = parsed.data.CLIENT_URL.split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 const environment = {
   port: parsed.data.PORT,
   nodeEnv: parsed.data.NODE_ENV,
-  clientUrl: parsed.data.CLIENT_URL,
+  clientUrl: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
+  allowedOrigins,
+  routingApiUrl: parsed.data.ROUTING_API_URL,
   databaseUrl: parsed.data.DATABASE_URL,
   jwtSecret: parsed.data.JWT_SECRET,
   jwtExpiresIn: parsed.data.JWT_EXPIRES_IN,
