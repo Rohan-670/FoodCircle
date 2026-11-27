@@ -38,10 +38,12 @@ enum RequestStatus {
 }
 
 enum DeliveryStatus {
-  ASSIGNED
-  PICKED_UP
+  PENDING_VOLUNTEER
+  VOLUNTEER_ASSIGNED
+  PICKUP_CONFIRMED
   IN_TRANSIT
-  DELIVERED
+  DELIVERY_CONFIRMED
+  CANCELLED
   FAILED
 }
 
@@ -59,6 +61,19 @@ enum NotificationType {
 enum RecommendationAction {
   ACCEPTED
   IGNORED
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWED
+  DISMISSED
+  ACTION_TAKEN
 }
 
 // ==========================================
@@ -89,37 +104,42 @@ model User {
 }
 
 model DonorProfile {
-  id               String   @id @default(uuid())
-  userId           String   @unique
-  organizationName String
-  businessType     String   @default("General")
-  address          String
-  latitude         Float?
-  longitude        Float?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                 String             @id @default(uuid())
+  userId             String             @unique
+  organizationName   String
+  businessType       String             @default("General")
+  address            String
+  latitude           Float?
+  longitude          Float?
+  isVerified         Boolean            @default(false)
+  verificationStatus VerificationStatus @default(PENDING)
+  verificationNotes  String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
 
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   donations Donation[]
 }
 
 model NGOProfile {
-  id                  String   @id @default(uuid())
-  userId              String   @unique
+  id                  String             @id @default(uuid())
+  userId              String             @unique
   organizationName    String
   contactPerson       String
-  registrationNumber  String?  @unique
+  registrationNumber  String?            @unique
   address             String
   serviceArea         String
   latitude            Float?
   longitude           Float?
   capacity            Int?
-  preferredCategories String[] @default([])
+  preferredCategories String[]           @default([])
   requiredQuantity    Int?
   currentRequirements String?
-  isVerified          Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  isVerified          Boolean            @default(false)
+  verificationStatus  VerificationStatus @default(PENDING)
+  verificationNotes   String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
 
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   donationRequests DonationRequest[]
@@ -159,6 +179,7 @@ model Donation {
   allergenInfo        String?
   storageRequirements String?
   safetyChecklist     Json?
+  safetyWarnings      String[]       @default([])
   status              DonationStatus @default(AVAILABLE)
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
@@ -166,6 +187,7 @@ model Donation {
   donor    DonorProfile      @relation(fields: [donorId], references: [id], onDelete: Cascade)
   requests DonationRequest[]
   delivery Delivery?
+  reports  DonationReport[]
 
   @@index([status])
   @@index([expiresAt])
@@ -190,20 +212,37 @@ model DonationRequest {
 }
 
 model Delivery {
-  id          String         @id @default(uuid())
-  donationId  String         @unique
-  volunteerId String?
-  status      DeliveryStatus @default(ASSIGNED)
-  pickedUpAt  DateTime?
-  deliveredAt DateTime?
-  notes       String?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  id                      String         @id @default(uuid())
+  donationId              String         @unique
+  ngoId                   String
+  volunteerId             String?
+  status                  DeliveryStatus @default(PENDING_VOLUNTEER)
+  pickupAddress           String
+  pickupLatitude          Float?
+  pickupLongitude         Float?
+  deliveryAddress         String
+  deliveryLatitude        Float?
+  deliveryLongitude       Float?
+  pickupQrToken           String?
+  pickupQrUsedAt          DateTime?
+  deliveryQrToken         String?
+  deliveryQrUsedAt        DateTime?
+  isLocationSharing       Boolean        @default(false)
+  lastVolunteerLat        Float?
+  lastVolunteerLng        Float?
+  lastLocationUpdatedAt   DateTime?
+  estimatedArrivalMinutes Int?
+  pickedUpAt              DateTime?
+  deliveredAt             DateTime?
+  notes                   String?
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
 
   donation  Donation          @relation(fields: [donationId], references: [id], onDelete: Cascade)
   volunteer VolunteerProfile? @relation(fields: [volunteerId], references: [id], onDelete: SetNull)
 
   @@index([status])
+  @@index([ngoId])
 }
 
 model Notification {
@@ -230,4 +269,49 @@ model RecommendationFeedback {
 
   @@unique([userId, donationId, ngoId])
   @@index([userId, action])
+}
+
+model VerificationRecord {
+  id                String             @id @default(uuid())
+  targetType        String             // 'NGO' | 'DONOR'
+  targetProfileId   String
+  status            VerificationStatus
+  notes             String?
+  reviewedByAdminId String
+  createdAt         DateTime           @default(now())
+
+  @@index([targetType, targetProfileId])
+  @@index([createdAt])
+}
+
+model DonationReport {
+  id                String       @id @default(uuid())
+  donationId        String
+  reportedByUserId  String
+  reason            String
+  details           String?
+  status            ReportStatus @default(OPEN)
+  adminNotes        String?
+  reviewedByAdminId String?
+  reviewedAt        DateTime?
+  createdAt         DateTime     @default(now())
+
+  donation Donation @relation(fields: [donationId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([donationId])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  adminId    String
+  action     String
+  targetType String
+  targetId   String
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([adminId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
 }

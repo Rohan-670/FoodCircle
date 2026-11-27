@@ -92,6 +92,21 @@ async function respondToRequest(req, res, next) {
   }
 }
 
+async function report(req, res, next) {
+  try {
+    const reportRecord = await donationService.reportDonation(
+      req.user.id,
+      req.params.id,
+      req.body
+    );
+    return sendSuccess(res, 201, 'Donation report submitted for admin review', {
+      report: reportRecord,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   create,
   getMyDonations,
@@ -100,4 +115,5 @@ module.exports = {
   browse,
   request,
   respondToRequest,
+  report,
 };

@@ -117,10 +117,16 @@ const respondToRequestSchema = z.object({
   }),
 });
 
+const reportDonationSchema = z.object({
+  reason: z.string().trim().min(3, 'Report reason is required').max(150),
+  details: z.string().trim().max(1000).optional().nullable(),
+});
+
 module.exports = {
   createDonationSchema,
   updateDonationSchema,
   browseDonationsQuerySchema,
   requestDonationSchema,
   respondToRequestSchema,
+  reportDonationSchema,
 };

@@ -3,6 +3,36 @@ const AppError = require('../utils/AppError');
 
 const EDITABLE_STATUSES = ['AVAILABLE', 'REQUESTED'];
 
+function buildSafetyWarnings({
+  allergenInfo,
+  foodCategory,
+  storageRequirements,
+  expiresAt,
+}) {
+  const warnings = [];
+  if (allergenInfo) {
+    warnings.push(
+      `Allergen notice: Contains ${allergenInfo}. Verify recipient dietary restrictions.`
+    );
+  }
+  const cat = (foodCategory || '').toLowerCase();
+  if (cat.includes('cooked') || cat.includes('dairy')) {
+    warnings.push(
+      `Perishable item: Maintain storage conditions (${storageRequirements || 'temperature-controlled'}) and distribute promptly.`
+    );
+  }
+  if (expiresAt) {
+    const hoursLeft = (new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60);
+    if (hoursLeft <= 4) {
+      warnings.push('Urgent deadline: Safe-consumption deadline is within 4 hours.');
+    }
+  }
+  warnings.push(
+    'Disclaimer: Food safety details are donor-reported. Images or platform listings do not certify food safety.'
+  );
+  return warnings;
+}
+
 function calculateDistanceKm(lat1, lon1, lat2, lon2) {
   const toRad = (deg) => (deg * Math.PI) / 180;
   const R = 6371; // Earth radius in km
@@ -36,6 +66,7 @@ async function getNgoProfileByUserId(userId) {
 async function createDonation(userId, data, imageFile = null) {
   const donorProfile = await getDonorProfileByUserId(userId);
   const imageUrl = imageFile ? `/uploads/donations/${imageFile.filename}` : null;
+  const safetyWarnings = buildSafetyWarnings(data);
 
   return prisma.donation.create({
     data: {
@@ -55,6 +86,7 @@ async function createDonation(userId, data, imageFile = null) {
       allergenInfo: data.allergenInfo || null,
       storageRequirements: data.storageRequirements,
       safetyChecklist: data.safetyChecklist,
+      safetyWarnings,
       status: 'AVAILABLE',
     },
     include: {
@@ -492,6 +524,26 @@ async function expireOverdueDonations() {
   });
 }
 
+/**
+ * Report a donation for food safety or compliance review by an administrator.
+ */
+async function reportDonation(userId, donationId, { reason, details }) {
+  const donation = await prisma.donation.findUnique({ where: { id: donationId } });
+  if (!donation) {
+    throw new AppError('Donation not found.', 404);
+  }
+
+  return prisma.donationReport.create({
+    data: {
+      donationId,
+      reportedByUserId: userId,
+      reason,
+      details: details || null,
+      status: 'OPEN',
+    },
+  });
+}
+
 module.exports = {
   createDonation,
   updateDonation,
@@ -501,4 +553,5 @@ module.exports = {
   requestDonation,
   respondToDonationRequest,
   expireOverdueDonations,
+  reportDonation,
 };

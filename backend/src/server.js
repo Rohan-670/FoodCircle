@@ -1,3 +1,4 @@
+const http = require('http');
 const app = require('./app');
 const environment = require('./config/environment');
 const { connectDatabase, disconnectDatabase } = require('./config/database');
@@ -5,6 +6,7 @@ const {
   startDonationExpiryJob,
   stopDonationExpiryJob,
 } = require('./jobs/donationExpiry.job');
+const { initializeSocketIO } = require('./sockets/deliverySocket');
 const logger = require('./utils/logger');
 
 let server;
@@ -16,7 +18,10 @@ async function startServer() {
   // Start scheduled job to mark expired donations
   startDonationExpiryJob();
 
-  server = app.listen(environment.port, () => {
+  server = http.createServer(app);
+  initializeSocketIO(server);
+
+  server.listen(environment.port, () => {
     logger.info(`=======================================================`);
     logger.info(` Surplus Food Donation & NGO Coordination Backend API  `);
     logger.info(` Environment : ${environment.nodeEnv}`);

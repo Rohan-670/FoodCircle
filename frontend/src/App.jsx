@@ -8,6 +8,8 @@ import ProfilePage from './pages/ProfilePage';
 import DonorDashboardPage from './pages/DonorDashboardPage';
 import NgoBrowsePage from './pages/NgoBrowsePage';
 import RecommendationsPage from './pages/RecommendationsPage';
+import DeliveryTrackingPage from './pages/DeliveryTrackingPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
 import './styles/App.css';
 
 function AppContent() {
@@ -27,6 +29,10 @@ function AppContent() {
         return <NgoBrowsePage />;
       case 'recommendations':
         return <RecommendationsPage />;
+      case 'deliveries':
+        return <DeliveryTrackingPage />;
+      case 'admin-dashboard':
+        return <AdminDashboardPage />;
       default:
         return <HomePage />;
     }

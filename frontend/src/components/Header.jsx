@@ -60,6 +60,26 @@ export function Header({ currentPage, onNavigate }) {
                 Recommendations
               </button>
             )}
+            {(user.role === 'DONOR' ||
+              user.role === 'NGO' ||
+              user.role === 'VOLUNTEER') && (
+              <button
+                type="button"
+                className={`nav-button ${currentPage === 'deliveries' ? 'nav-active' : ''}`}
+                onClick={() => onNavigate('deliveries')}
+              >
+                Deliveries
+              </button>
+            )}
+            {user.role === 'ADMIN' && (
+              <button
+                type="button"
+                className={`nav-button ${currentPage === 'admin-dashboard' ? 'nav-active' : ''}`}
+                onClick={() => onNavigate('admin-dashboard')}
+              >
+                Admin Dashboard
+              </button>
+            )}
             <button
               type="button"
               className={`nav-button ${currentPage === 'profile' ? 'nav-active' : ''}`}

@@ -9,6 +9,7 @@ const {
   browseDonationsQuerySchema,
   requestDonationSchema,
   respondToRequestSchema,
+  reportDonationSchema,
 } = require('../../validators/donation.validator');
 
 const router = express.Router();
@@ -57,6 +58,14 @@ router.post(
   authorize('NGO'),
   validate({ body: requestDonationSchema }),
   donationController.request
+);
+
+// Any authenticated user (NGO, Volunteer, Donor) can report a donation for safety review
+router.post(
+  '/:id/report',
+  authorize('DONOR', 'NGO', 'VOLUNTEER'),
+  validate({ body: reportDonationSchema }),
+  donationController.report
 );
 
 module.exports = router;

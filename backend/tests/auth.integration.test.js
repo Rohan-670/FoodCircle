@@ -44,6 +44,8 @@ prisma.user.findUnique = async ({ where, include }) => {
 prisma.user.findMany = async ({ include }) => {
   return store.users.map((u) => (include ? attachProfiles(u) : { ...u }));
 };
+prisma.user.count = async () => store.users.length;
+prisma.auditLog.create = async ({ data }) => ({ id: crypto.randomUUID(), ...data });
 prisma.user.create = async ({ data }) => {
   const user = {
     id: crypto.randomUUID(),
