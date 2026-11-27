@@ -1,98 +1,170 @@
 import React, { useState } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
-import { Card, Badge, Button } from '../components/ui';
+import { Card, Badge, Button, Input, Select, Modal } from '../components/ui';
 import { MOCK_DONATIONS } from '../data/mockData';
 
 export function DonorDashboardPage({ onNavigate }) {
   const [section, setSection] = useState('overview');
+  const [donations, setDonations] = useState(MOCK_DONATIONS.slice(0, 3));
+  const [requests, setRequests] = useState([
+    {
+      id: 'req-1',
+      batch: 'Vegetable Pulao & Lentil Curry',
+      ngoName: 'Mercy Community Kitchen',
+      servings: 65,
+      sla: '~25 mins',
+      status: 'PENDING',
+    },
+    {
+      id: 'req-2',
+      batch: 'Artisan Loaves',
+      ngoName: 'Annapurna Relief Food Bank',
+      servings: 40,
+      sla: '~35 mins',
+      status: 'PENDING',
+    },
+  ]);
+  const [showModal, setShowModal] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const [newBatch, setNewBatch] = useState({
+    title: '',
+    category: 'Cooked Meals',
+    dietary: 'Pure Veg',
+    quantity: '',
+    unit: 'servings',
+    hoursRemaining: '4',
+    pickupAddress: '42 Residency Road, Central Ward',
+    holdingTemp: '65°C Hot Holding',
+    storageRequirements: 'Store in insulated carriers',
+  });
 
   const sidebarItems = [
-    { id: 'overview', label: 'Active & Accepted', count: 3 },
-    { id: 'requests', label: 'Incoming NGO Requests', count: 2 },
-    { id: 'safety', label: 'FSSAI Safety Checklist' },
+    { id: 'overview', label: 'Active Listings', count: donations.length },
+    { id: 'requests', label: 'Incoming Requests', count: requests.filter((r) => r.status === 'PENDING').length },
     { id: 'history', label: 'Completed Deliveries', count: 14 },
   ];
 
   const metrics = [
-    { label: 'FSSAI Registration', value: 'Verified', note: 'FSSAI-11223344009182' },
-    { label: 'Active Surplus Batches', value: '2', note: 'Within safe consumption window' },
-    { label: 'Accepted by NGOs', value: '1', note: 'Awaiting volunteer pickup' },
-    { label: 'Meals Rescued (Total)', value: '820', note: 'Good Samaritan compliant' },
+    { label: 'Active Listings', value: String(donations.length), note: 'Available or requested' },
+    { label: 'Pending Requests', value: String(requests.filter((r) => r.status === 'PENDING').length), note: 'Awaiting your approval' },
+    { label: 'Accepted Batches', value: String(donations.filter((d) => d.status === 'ACCEPTED').length + 1), note: 'Ready for courier' },
+    { label: 'Meals Rescued', value: '820', note: 'Cumulative to date' },
   ];
+
+  const handleCreateDonation = (e) => {
+    e.preventDefault();
+    if (!newBatch.title.trim() || !newBatch.quantity) return;
+
+    const created = {
+      id: `don-${Date.now()}`,
+      title: newBatch.title,
+      category: newBatch.category,
+      dietary: newBatch.dietary,
+      quantity: Number(newBatch.quantity),
+      unit: newBatch.unit,
+      hoursRemaining: Number(newBatch.hoursRemaining),
+      expiresAt: `In ${newBatch.hoursRemaining} hours`,
+      pickupAddress: newBatch.pickupAddress,
+      holdingTemp: newBatch.holdingTemp,
+      status: 'AVAILABLE',
+      urgency: Number(newBatch.hoursRemaining) <= 4 ? 'CRITICAL' : 'HIGH',
+    };
+
+    setDonations([created, ...donations]);
+    setShowModal(false);
+    setFeedback(`Batch "${created.title}" published successfully!`);
+    setTimeout(() => setFeedback(''), 4000);
+    setNewBatch({
+      title: '',
+      category: 'Cooked Meals',
+      dietary: 'Pure Veg',
+      quantity: '',
+      unit: 'servings',
+      hoursRemaining: '4',
+      pickupAddress: '42 Residency Road, Central Ward',
+      holdingTemp: '65°C Hot Holding',
+      storageRequirements: 'Store in insulated carriers',
+    });
+  };
+
+  const handleAcceptRequest = (requestId) => {
+    setRequests(
+      requests.map((r) => (r.id === requestId ? { ...r, status: 'ACCEPTED' } : r))
+    );
+    setFeedback('Request accepted! Volunteer courier notification triggered.');
+    setTimeout(() => setFeedback(''), 4000);
+  };
+
+  const handleDeclineRequest = (requestId) => {
+    setRequests(requests.filter((r) => r.id !== requestId));
+    setFeedback('Request declined.');
+    setTimeout(() => setFeedback(''), 3000);
+  };
 
   return (
     <DashboardLayout
-      roleLabel="Surplus Food Donor"
-      title="Saffron Courtyard Banquets"
-      subtitle="FSSAI License: FSSAI-11223344009182 • Tier 5 Verified Commercial Kitchen"
+      roleLabel="Donor"
+      title="Saffron Courtyard Kitchen"
+      subtitle="Manage your surplus food batches and respond to NGO requests."
       sidebarItems={sidebarItems}
       activeSection={section}
       onSectionChange={setSection}
       metrics={metrics}
       actions={
-        <Button
-          variant="secondary"
-          disabled
-          title="Backend creation is disabled in static UI preview"
-        >
-          + Post New Surplus Batch
+        <Button onClick={() => setShowModal(true)}>
+          + New Food Batch
         </Button>
       }
     >
-      {/* Statutory Guidance Banner */}
-      <div className="statutory-shield-box" style={{ marginBottom: '1.25rem', padding: '0.85rem 1.15rem' }}>
-        <strong style={{ color: 'var(--color-forest)' }}>Good Samaritan Statutory Shield:</strong>{' '}
-        <span style={{ fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
-          Donations made in good faith conforming to FSSAI Schedule I safety requirements are immune from liability. Ensure hot batches remain above 60°C or cold batches below 7°C.
-        </span>
-      </div>
+      {feedback && (
+        <div style={{ backgroundColor: 'var(--color-mint)', border: '1px solid var(--color-mint-border)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.88rem', color: 'var(--color-forest)', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>✓ {feedback}</span>
+          <button type="button" onClick={() => setFeedback('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 'bold' }}>×</button>
+        </div>
+      )}
 
       {section === 'overview' && (
         <Card
-          title="Active Surplus Batches (Live Tracking)"
-          subtitle="Click any batch to inspect FSSAI safety checklist and single-use QR handoff."
+          title="Active Food Batches"
+          subtitle="Surplus batches currently available or awaiting pickup."
         >
           <div className="table-wrap">
             <table className="editorial-table">
               <thead>
                 <tr>
-                  <th>Food Batch</th>
-                  <th>Dietary / Volume</th>
-                  <th>Holding Temp</th>
-                  <th>Expiry Window</th>
+                  <th>Batch</th>
+                  <th>Quantity</th>
+                  <th>Temperature</th>
+                  <th>Expires In</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {MOCK_DONATIONS.slice(0, 3).map((d) => (
+                {donations.map((d) => (
                   <tr key={d.id}>
                     <td>
                       <strong>{d.title}</strong>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                        {d.category}
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                        {d.category} • {d.dietary}
                       </div>
                     </td>
                     <td>
-                      <div><strong>{d.quantity} {d.unit}</strong></div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--color-forest)' }}>{d.dietary}</div>
+                      <strong>{d.quantity} {d.unit}</strong>
                     </td>
                     <td style={{ fontSize: '0.84rem' }}>{d.holdingTemp}</td>
                     <td>
                       <span style={{ color: d.urgency === 'CRITICAL' ? 'var(--color-saffron)' : 'inherit', fontWeight: 600 }}>
-                        {d.expiresAt}
+                        {d.hoursRemaining}h
                       </span>
-                      <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
-                        {d.hoursRemaining}h remaining
-                      </div>
                     </td>
                     <td>
                       <Badge
                         tone={
                           d.urgency === 'CRITICAL'
                             ? 'terracotta'
-                            : d.status === 'REQUESTED'
-                            ? 'sage'
+                            : d.status === 'ACCEPTED'
+                            ? 'forest'
                             : 'mint'
                         }
                       >
@@ -105,7 +177,7 @@ export function DonorDashboardPage({ onNavigate }) {
                         size="sm"
                         onClick={() => onNavigate('details', d.id)}
                       >
-                        Inspect Details →
+                        Details →
                       </Button>
                     </td>
                   </tr>
@@ -118,88 +190,165 @@ export function DonorDashboardPage({ onNavigate }) {
 
       {section === 'requests' && (
         <Card
-          title="Incoming NGO Allocation Requests (Mock Data)"
-          badge={<Badge tone="sage">2 PENDING</Badge>}
+          title="Incoming Allocation Requests"
+          subtitle="NGOs requesting to claim your available batches."
         >
-          <div className="table-wrap">
-            <table className="editorial-table">
-              <thead>
-                <tr>
-                  <th>Batch</th>
-                  <th>Requesting NGO</th>
-                  <th>DARPAN ID</th>
-                  <th>Turnaround SLA</th>
-                  <th>Decision</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Vegetable Pulao &amp; Lentil Curry (65 servings)</td>
-                  <td>Mercy Community Kitchen</td>
-                  <td><span style={{ fontFamily: 'var(--font-mono)' }}>KA/2021/0149921</span></td>
-                  <td>~25 mins</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '0.35rem' }}>
-                      <Button size="sm" disabled title="Disabled in static preview">Accept</Button>
-                      <Button size="sm" variant="ghost" disabled title="Disabled in static preview">Decline</Button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Artisan Loaves (40 loaves)</td>
-                  <td>Annapurna Relief Food Bank</td>
-                  <td><span style={{ fontFamily: 'var(--font-mono)' }}>KA/2019/0088214</span></td>
-                  <td>~35 mins</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '0.35rem' }}>
-                      <Button size="sm" disabled title="Disabled in static preview">Accept</Button>
-                      <Button size="sm" variant="ghost" disabled title="Disabled in static preview">Decline</Button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      )}
-
-      {section === 'safety' && (
-        <Card
-          title="FSSAI Schedule I Donor Safety Affirmation"
-          subtitle="All surplus listings mandate four-point safety verification before NGO visibility."
-        >
-          <ul style={{ listStyle: 'none', display: 'grid', gap: '0.65rem', fontSize: '0.92rem' }}>
-            <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <Badge tone="mint">✓</Badge>
-              <span>Prepared in an FSSAI-registered commercial or event kitchen.</span>
-            </li>
-            <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <Badge tone="mint">✓</Badge>
-              <span>Packaged in food-grade, tamper-evident containers.</span>
-            </li>
-            <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <Badge tone="mint">✓</Badge>
-              <span>Hot holding above 60°C or rapid chilled below 7°C maintained.</span>
-            </li>
-            <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <Badge tone="mint">✓</Badge>
-              <span>Clear allergen disclosures (dairy, gluten, nuts) declared on batch label.</span>
-            </li>
-          </ul>
+          {requests.length === 0 ? (
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>No pending requests.</p>
+          ) : (
+            <div className="table-wrap">
+              <table className="editorial-table">
+                <thead>
+                  <tr>
+                    <th>Batch</th>
+                    <th>Requesting NGO</th>
+                    <th>Servings</th>
+                    <th>ETA</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests.map((r) => (
+                    <tr key={r.id}>
+                      <td><strong>{r.batch}</strong></td>
+                      <td>{r.ngoName}</td>
+                      <td>{r.servings}</td>
+                      <td>{r.sla}</td>
+                      <td>
+                        <Badge tone={r.status === 'ACCEPTED' ? 'forest' : 'sage'}>
+                          {r.status}
+                        </Badge>
+                      </td>
+                      <td>
+                        {r.status === 'PENDING' ? (
+                          <div style={{ display: 'flex', gap: '0.4rem' }}>
+                            <Button size="sm" onClick={() => handleAcceptRequest(r.id)}>
+                              Accept
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleDeclineRequest(r.id)}>
+                              Decline
+                            </Button>
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: '0.8rem', color: 'var(--color-forest)', fontWeight: 600 }}>
+                            Assigned to courier
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
       )}
 
       {section === 'history' && (
-        <Card
-          title="Completed Food Rescue History (Mock Data)"
-          badge={<Badge tone="forest">14 DELIVERIES</Badge>}
-        >
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-            14 surplus batches successfully rescued and confirmed via single-use QR handoff tokens.
-            Zero reported safety incidents or spoilage events.
+        <Card title="Completed Deliveries" badge={<Badge tone="forest">14 Completed</Badge>}>
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+            14 surplus batches successfully delivered to partner shelters via verified QR handoffs.
           </p>
         </Card>
       )}
+
+      {/* Reactive Post New Donation Modal */}
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="Post New Surplus Batch"
+        footer={
+          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', width: '100%' }}>
+            <Button variant="ghost" onClick={() => setShowModal(false)}>Cancel</Button>
+            <Button onClick={handleCreateDonation}>Publish Batch</Button>
+          </div>
+        }
+      >
+        <form onSubmit={handleCreateDonation} className="form-stack">
+          <Input
+            id="batch-title"
+            label="Food Title"
+            value={newBatch.title}
+            onChange={(e) => setNewBatch({ ...newBatch, title: e.target.value })}
+            placeholder="e.g. Steamed Rice & Dal Trays"
+            required
+          />
+
+          <div className="form-grid-2">
+            <Select
+              id="batch-cat"
+              label="Category"
+              value={newBatch.category}
+              onChange={(e) => setNewBatch({ ...newBatch, category: e.target.value })}
+            >
+              <option value="Cooked Meals">Cooked Meals</option>
+              <option value="Bakery & Bread">Bakery &amp; Bread</option>
+              <option value="Fresh Produce">Fresh Produce</option>
+              <option value="Dairy & Beverages">Dairy &amp; Beverages</option>
+            </Select>
+
+            <Select
+              id="batch-dietary"
+              label="Dietary"
+              value={newBatch.dietary}
+              onChange={(e) => setNewBatch({ ...newBatch, dietary: e.target.value })}
+            >
+              <option value="Pure Veg">Pure Veg</option>
+              <option value="Vegetarian">Vegetarian</option>
+            </Select>
+          </div>
+
+          <div className="form-grid-2">
+            <Input
+              id="batch-qty"
+              label="Quantity"
+              type="number"
+              min="1"
+              value={newBatch.quantity}
+              onChange={(e) => setNewBatch({ ...newBatch, quantity: e.target.value })}
+              placeholder="e.g. 50"
+              required
+            />
+            <Input
+              id="batch-unit"
+              label="Unit"
+              value={newBatch.unit}
+              onChange={(e) => setNewBatch({ ...newBatch, unit: e.target.value })}
+              placeholder="servings, kg, loaves"
+              required
+            />
+          </div>
+
+          <div className="form-grid-2">
+            <Input
+              id="batch-hours"
+              label="Expiry In (Hours)"
+              type="number"
+              min="1"
+              max="72"
+              value={newBatch.hoursRemaining}
+              onChange={(e) => setNewBatch({ ...newBatch, hoursRemaining: e.target.value })}
+              required
+            />
+            <Input
+              id="batch-temp"
+              label="Holding Temperature"
+              value={newBatch.holdingTemp}
+              onChange={(e) => setNewBatch({ ...newBatch, holdingTemp: e.target.value })}
+              placeholder="e.g. >60°C Hot Holding or <5°C Chilled"
+            />
+          </div>
+
+          <Input
+            id="batch-address"
+            label="Pickup Address"
+            value={newBatch.pickupAddress}
+            onChange={(e) => setNewBatch({ ...newBatch, pickupAddress: e.target.value })}
+            required
+          />
+        </form>
+      </Modal>
     </DashboardLayout>
   );
 }

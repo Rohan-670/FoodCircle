@@ -55,7 +55,7 @@ const createDonationSchema = z
       .string()
       .trim()
       .min(2, 'Storage requirements are required'),
-    safetyChecklist: safetyChecklistSchema,
+    safetyChecklist: safetyChecklistSchema.optional(),
   })
   .refine((data) => data.expiresAt > new Date(), {
     message: 'Expiry deadline must be in the future',

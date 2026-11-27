@@ -86,7 +86,7 @@ async function createDonation(userId, data, imageFile = null) {
       packagingInfo: data.packagingInfo,
       allergenInfo: data.allergenInfo || null,
       storageRequirements: data.storageRequirements,
-      safetyChecklist: data.safetyChecklist,
+      safetyChecklist: data.safetyChecklist || null,
       safetyWarnings,
       status: 'AVAILABLE',
     },

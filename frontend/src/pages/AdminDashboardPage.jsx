@@ -3,129 +3,137 @@ import DashboardLayout from '../layouts/DashboardLayout';
 import { Card, Badge, Button } from '../components/ui';
 import {
   MOCK_ADMIN_VERIFICATIONS,
-  MOCK_ADMIN_REPORTS,
   MOCK_AUDIT_LOGS,
   MOCK_DONATIONS,
 } from '../data/mockData';
 
 export function AdminDashboardPage() {
   const [section, setSection] = useState('verifications');
+  const [verifications, setVerifications] = useState(MOCK_ADMIN_VERIFICATIONS);
+  const [auditLogs, setAuditLogs] = useState(MOCK_AUDIT_LOGS);
+  const [feedback, setFeedback] = useState('');
+
+  const handleVerifyOrg = (id, orgName) => {
+    setVerifications(verifications.filter((v) => v.id !== id));
+    const newLog = {
+      id: `aud-${Date.now()}`,
+      action: 'ORGANIZATION_VERIFIED',
+      target: orgName,
+      admin: 'System Administrator',
+      timestamp: 'Just now',
+    };
+    setAuditLogs([newLog, ...auditLogs]);
+    setFeedback(`"${orgName}" successfully verified & activated!`);
+    setTimeout(() => setFeedback(''), 4000);
+  };
+
+  const handleRejectOrg = (id, orgName) => {
+    setVerifications(verifications.filter((v) => v.id !== id));
+    const newLog = {
+      id: `aud-${Date.now()}`,
+      action: 'ORGANIZATION_REJECTED',
+      target: orgName,
+      admin: 'System Administrator',
+      timestamp: 'Just now',
+    };
+    setAuditLogs([newLog, ...auditLogs]);
+    setFeedback(`"${orgName}" application rejected.`);
+    setTimeout(() => setFeedback(''), 4000);
+  };
 
   const sidebarItems = [
-    { id: 'verifications', label: 'NITI Aayog DARPAN Queue', count: MOCK_ADMIN_VERIFICATIONS.length },
-    { id: 'reports', label: 'Food Safety Reports', count: MOCK_ADMIN_REPORTS.length },
-    { id: 'donations', label: 'Surplus Batches & Network', count: MOCK_DONATIONS.length },
-    { id: 'audit', label: 'Compliance Audit Trail', count: MOCK_AUDIT_LOGS.length },
+    { id: 'verifications', label: 'Verification Queue', count: verifications.length },
+    { id: 'donations', label: 'Active Network Batches', count: MOCK_DONATIONS.length },
+    { id: 'audit', label: 'Audit Trail', count: auditLogs.length },
   ];
 
   const metrics = [
-    { label: 'Registered Entities', value: '54', note: '24 Donors • 18 NGOs • 12 Vol' },
-    { label: 'Active Surplus Volume', value: '220 kg', note: 'All within consumption SLA' },
-    { label: 'Active Deliveries', value: '3', note: 'Live single-use QR tracking' },
-    { label: 'DARPAN Pending Review', value: '2', note: 'Tier evaluation in progress' },
+    { label: 'Registered Entities', value: '54', note: 'Donors, NGOs, Volunteers' },
+    { label: 'Active Volume', value: '220 kg', note: 'Across all active corridors' },
+    { label: 'Active Deliveries', value: '3', note: 'QR-tracked couriers' },
+    { label: 'Pending Verification', value: String(verifications.length), note: 'Review required' },
   ];
 
   return (
     <DashboardLayout
-      roleLabel="Platform Administrator"
-      title="Statutory Governance &amp; Compliance Hub"
-      subtitle="Verify NITI Aayog DARPAN credentials, review FSSAI safety incidents, manage 5-tier privileges, and monitor immutable audit logs."
+      roleLabel="Admin"
+      title="Platform Governance &amp; Administration"
+      subtitle="Review organization registrations, manage accounts, and audit operations."
       sidebarItems={sidebarItems}
       activeSection={section}
       onSectionChange={setSection}
       metrics={metrics}
     >
-      {/* Statutory Guidance Banner */}
-      <div className="statutory-shield-box" style={{ marginBottom: '1.25rem', padding: '0.85rem 1.15rem' }}>
-        <strong style={{ color: 'var(--color-forest)' }}>NITI Aayog DARPAN &amp; FSSAI Verification Standards:</strong>{' '}
-        <span style={{ fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
-          All NGO partners are verified against the central NGO DARPAN database and assigned privilege tiers based on cold chain infrastructure (≤4°C) and verified daily meal buffer capacities.
-        </span>
-      </div>
+      {feedback && (
+        <div style={{ backgroundColor: 'var(--color-mint)', border: '1px solid var(--color-mint-border)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.88rem', color: 'var(--color-forest)', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>✓ {feedback}</span>
+          <button type="button" onClick={() => setFeedback('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 'bold' }}>×</button>
+        </div>
+      )}
 
       {section === 'verifications' && (
         <Card
-          title="Organization Verification Queue (DARPAN &amp; FSSAI)"
-          subtitle="Review official registration credentials before granting surplus allocation rights."
+          title="Organization Verification Queue"
+          subtitle="Review registration details before granting platform access."
         >
-          <div className="form-stack">
-            {MOCK_ADMIN_VERIFICATIONS.map((item) => (
-              <div
-                key={item.id}
-                className="info-strip"
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: '0.75rem',
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <strong>{item.organization}</strong>
-                    <Badge tone="forest">{item.type}</Badge>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--color-forest)', fontWeight: 600 }}>
-                      {item.tier}
-                    </span>
+          {verifications.length === 0 ? (
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              No pending verification requests. All organizations reviewed!
+            </p>
+          ) : (
+            <div className="form-stack">
+              {verifications.map((item) => (
+                <div
+                  key={item.id}
+                  className="info-strip"
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '0.75rem',
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <strong>{item.organization}</strong>
+                      <Badge tone="forest">{item.type}</Badge>
+                    </div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                      ID: <span style={{ fontFamily: 'var(--font-mono)' }}>{item.darpanId || item.fssaiLicense || item.registrationNo}</span> • Area: {item.serviceArea} • Submitted {item.submittedAt}
+                    </div>
                   </div>
-                  <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                    Reg: <span style={{ fontFamily: 'var(--font-mono)' }}>{item.darpanId || item.fssaiLicense || item.registrationNo}</span> • Area: {item.serviceArea} • Cold Chain: {item.coldChainCapability ? 'Equipped (≤4°C)' : 'Ambient Only'} • Submitted {item.submittedAt}
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <Button
+                      size="sm"
+                      onClick={() => handleVerifyOrg(item.id, item.organization)}
+                    >
+                      Verify &amp; Activate
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleRejectOrg(item.id, item.organization)}
+                    >
+                      Reject
+                    </Button>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Button size="sm" disabled title="Disabled in static UI preview">
-                    Verify &amp; Activate
-                  </Button>
-                  <Button variant="secondary" size="sm" disabled title="Disabled in static UI preview">
-                    Reject
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {section === 'reports' && (
-        <Card
-          title="Food Safety Incident Queue (Mock Data)"
-          subtitle="Investigate potential thermal violations, packaging tears, or expired batch notices."
-        >
-          {MOCK_ADMIN_REPORTS.map((rep) => (
-            <div key={rep.id} className="info-strip">
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <strong>{rep.donationTitle}</strong>
-                <Badge tone="terracotta">{rep.status}</Badge>
-              </div>
-              <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', margin: '0.4rem 0 0.75rem' }}>
-                <strong>Reason:</strong> {rep.reason} — {rep.notes} (Reported by {rep.reportedBy})
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Button size="sm" variant="secondary" disabled title="Disabled in static preview">
-                  Quarantine Batch
-                </Button>
-                <Button size="sm" variant="ghost" disabled title="Disabled in static preview">
-                  Dismiss Report
-                </Button>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
         </Card>
       )}
 
       {section === 'donations' && (
-        <Card
-          title="Surplus Batches &amp; Registered Entities"
-          subtitle="Real-time oversight of all platform activity."
-        >
+        <Card title="Active Network Batches" subtitle="Live food batches across all corridors.">
           <div className="table-wrap">
             <table className="editorial-table">
               <thead>
                 <tr>
-                  <th>Batch / Entity</th>
-                  <th>Category / Type</th>
-                  <th>License / DARPAN</th>
+                  <th>Batch / Donor</th>
+                  <th>Category</th>
+                  <th>Quantity</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -139,7 +147,7 @@ export function AdminDashboardPage() {
                       </div>
                     </td>
                     <td>{d.category}</td>
-                    <td><span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>{d.fssaiLicense}</span></td>
+                    <td>{d.quantity} {d.unit}</td>
                     <td><Badge tone="mint">{d.status}</Badge></td>
                   </tr>
                 ))}
@@ -150,10 +158,7 @@ export function AdminDashboardPage() {
       )}
 
       {section === 'audit' && (
-        <Card
-          title="Immutable Platform Audit Logs"
-          subtitle="Cryptographically logged system transactions, verifications, and single-use QR confirmations."
-        >
+        <Card title="Immutable Audit Trail" subtitle="System records and admin decisions.">
           <div className="table-wrap">
             <table className="editorial-table">
               <thead>
@@ -165,7 +170,7 @@ export function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_AUDIT_LOGS.map((a) => (
+                {auditLogs.map((a) => (
                   <tr key={a.id}>
                     <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{a.timestamp}</td>
                     <td><Badge tone="forest">{a.action}</Badge></td>

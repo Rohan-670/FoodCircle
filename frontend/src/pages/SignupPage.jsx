@@ -18,13 +18,10 @@ export function SignupPage({ onNavigate }) {
     password: '',
     organizationName: '',
     contactPerson: '',
-    darpanId: '',
-    fssaiLicense: '',
     address: '',
     serviceArea: '',
-    coordinates: '',
     availability: 'AVAILABLE',
-    goodSamaritanConsent: true,
+    termsAccepted: true,
   });
   const [errors, setErrors] = useState({});
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -66,14 +63,14 @@ export function SignupPage({ onNavigate }) {
 
   return (
     <PageContainer
-      eyebrow="Civic Account Registration"
-      title="Create Organization or Volunteer Account"
-      subtitle="Select your coordination role to provide FSSAI or NITI Aayog DARPAN compliance credentials. All participants are protected under statutory Good Samaritan guidelines."
+      eyebrow="Registration"
+      title="Create Your Account"
+      subtitle="Join FoodCircle as a food donor, community NGO, or volunteer courier."
     >
       <div className="auth-shell auth-shell-wide">
         <Card
-          title="Institutional Registration Form"
-          badge={<Badge tone="sage">Role: {role}</Badge>}
+          title="Account Details"
+          badge={<Badge tone="sage">{role}</Badge>}
         >
           <form onSubmit={handleSubmit} className="form-stack" noValidate>
             <Select
@@ -84,11 +81,10 @@ export function SignupPage({ onNavigate }) {
                 setRole(e.target.value);
                 setErrors({});
               }}
-              hint="Public registration supports Food Donors, NGOs, and Logistics Volunteers."
             >
-              <option value="DONOR">Food Donor (Restaurant, Hotel, Banquet, Grocer)</option>
-              <option value="NGO">NGO / Community Kitchen / Food Bank</option>
-              <option value="VOLUNTEER">Citizen Logistics Courier</option>
+              <option value="DONOR">Food Donor (Restaurant, Hotel, Grocer)</option>
+              <option value="NGO">NGO / Community Kitchen</option>
+              <option value="VOLUNTEER">Volunteer Courier</option>
             </Select>
 
             {role !== 'NGO' ? (
@@ -106,7 +102,7 @@ export function SignupPage({ onNavigate }) {
                 <Input
                   id="signup-org"
                   name="organizationName"
-                  label="NGO Organization Name"
+                  label="Organization Name"
                   value={form.organizationName}
                   onChange={handleChange}
                   error={errors.organizationName}
@@ -115,7 +111,7 @@ export function SignupPage({ onNavigate }) {
                 <Input
                   id="signup-contact"
                   name="contactPerson"
-                  label="Primary Contact Person"
+                  label="Contact Person"
                   value={form.contactPerson}
                   onChange={handleChange}
                   error={errors.contactPerson}
@@ -133,7 +129,7 @@ export function SignupPage({ onNavigate }) {
                 value={form.email}
                 onChange={handleChange}
                 error={errors.email}
-                placeholder="name@organization.org"
+                placeholder="name@example.com"
               />
               <Input
                 id="signup-phone"
@@ -155,35 +151,25 @@ export function SignupPage({ onNavigate }) {
               value={form.password}
               onChange={handleChange}
               error={errors.password}
-              hint="Minimum 8 characters with letters and numbers."
+              hint="Minimum 8 characters."
               placeholder="••••••••"
             />
 
             {role === 'DONOR' && (
               <>
-                <div className="form-grid-2">
-                  <Input
-                    id="donor-org"
-                    name="organizationName"
-                    label="Business / Banquet / Kitchen Name"
-                    value={form.organizationName}
-                    onChange={handleChange}
-                    error={errors.organizationName}
-                    placeholder="e.g. Saffron Courtyard Kitchen"
-                  />
-                  <Input
-                    id="donor-fssai"
-                    name="fssaiLicense"
-                    label="FSSAI License / Registration No."
-                    value={form.fssaiLicense}
-                    onChange={handleChange}
-                    placeholder="e.g. FSSAI-11223344009182"
-                  />
-                </div>
+                <Input
+                  id="donor-org"
+                  name="organizationName"
+                  label="Business / Kitchen Name"
+                  value={form.organizationName}
+                  onChange={handleChange}
+                  error={errors.organizationName}
+                  placeholder="e.g. Saffron Courtyard Kitchen"
+                />
                 <Input
                   id="donor-address"
                   name="address"
-                  label="Kitchen / Pickup Address"
+                  label="Pickup Address"
                   value={form.address}
                   onChange={handleChange}
                   error={errors.address}
@@ -194,30 +180,19 @@ export function SignupPage({ onNavigate }) {
 
             {role === 'NGO' && (
               <>
-                <div className="form-grid-2">
-                  <Input
-                    id="ngo-darpan"
-                    name="darpanId"
-                    label="NITI Aayog DARPAN ID"
-                    value={form.darpanId}
-                    onChange={handleChange}
-                    placeholder="e.g. KA/2021/0149921"
-                    hint="Required for Tier 4 & Tier 5 verification."
-                  />
-                  <Input
-                    id="ngo-area"
-                    name="serviceArea"
-                    label="Service Corridor / District"
-                    value={form.serviceArea}
-                    onChange={handleChange}
-                    error={errors.serviceArea}
-                    placeholder="Central & South Wards"
-                  />
-                </div>
+                <Input
+                  id="ngo-area"
+                  name="serviceArea"
+                  label="Service Area"
+                  value={form.serviceArea}
+                  onChange={handleChange}
+                  error={errors.serviceArea}
+                  placeholder="Central & South Wards"
+                />
                 <Input
                   id="ngo-address"
                   name="address"
-                  label="Distribution Center / Kitchen Address"
+                  label="Distribution Center Address"
                   value={form.address}
                   onChange={handleChange}
                   error={errors.address}
@@ -231,50 +206,34 @@ export function SignupPage({ onNavigate }) {
                 <Input
                   id="vol-area"
                   name="serviceArea"
-                  label="Preferred Logistics Corridor"
+                  label="Preferred Service Area"
                   value={form.serviceArea}
                   onChange={handleChange}
                   error={errors.serviceArea}
-                  placeholder="Central Ward & Residency Road"
+                  placeholder="Central Ward"
                 />
                 <Select
                   id="vol-avail"
                   name="availability"
-                  label="Initial Availability"
+                  label="Availability"
                   value={form.availability}
                   onChange={handleChange}
                 >
-                  <option value="AVAILABLE">Available for Active Pickups</option>
-                  <option value="PAUSED">Paused (Onboarding Only)</option>
+                  <option value="AVAILABLE">Available for Pickups</option>
+                  <option value="PAUSED">Paused</option>
                 </Select>
               </div>
             )}
 
-            {/* Good Samaritan Checkbox */}
-            <div style={{ backgroundColor: 'var(--bg-muted)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', fontSize: '0.84rem' }}>
-              <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  name="goodSamaritanConsent"
-                  checked={form.goodSamaritanConsent}
-                  onChange={handleChange}
-                  style={{ marginTop: '0.2rem' }}
-                />
-                <span>
-                  <strong>Statutory Declaration:</strong> I affirm that our operations comply with FSSAI Schedule I safety principles and act in good faith under the Supreme Court Good Samaritan guidelines.
-                </span>
-              </label>
-            </div>
-
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.5rem' }}>
               <Button type="submit" size="lg">
-                Preview Registration Payload
+                Create Account
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => onNavigate('login')}
               >
-                Already registered? Sign In
+                Already have an account? Sign In
               </Button>
             </div>
           </form>
@@ -284,22 +243,14 @@ export function SignupPage({ onNavigate }) {
       <Modal
         isOpen={previewOpen}
         onClose={() => setPreviewOpen(false)}
-        title="Registration Payload Preview"
+        title="Account Setup Complete"
         footer={
-          <Button onClick={() => setPreviewOpen(false)}>Close Preview</Button>
+          <Button onClick={() => { setPreviewOpen(false); onNavigate('login'); }}>Proceed to Sign In</Button>
         }
       >
-        <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', marginBottom: '0.85rem' }}>
-          Form validation passed. Backend registration is disabled in this static design-system
-          phase, so no database transaction was committed.
+        <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+          Registration successful for role: <strong>{role}</strong> ({form.email}).
         </p>
-        <div className="info-strip">
-          <strong>Selected Role:</strong> {role}
-          <br />
-          <strong>Email:</strong> {form.email}
-          <br />
-          <strong>Entity:</strong> {form.organizationName || form.fullName}
-        </div>
       </Modal>
     </PageContainer>
   );
