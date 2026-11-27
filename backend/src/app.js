@@ -2,8 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const environment = require('./config/environment');
 const apiRoutes = require('./routes');
+const requestLogger = require('./middleware/requestLogger');
 const notFoundHandler = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
+const { sendSuccess } = require('./utils/response');
 
 const app = express();
 
@@ -15,21 +17,23 @@ app.use(
   })
 );
 
+// HTTP request logging
+app.use(requestLogger);
+
 // Body parsers
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Root welcome endpoint
 app.get('/', (req, res) => {
-  res.json({
-    name: 'Surplus Food Donation & NGO Coordination System API',
-    version: '1.0.0',
+  return sendSuccess(res, 200, 'Surplus Food Donation & NGO Coordination System API', {
+    version: 'v1',
     status: 'online',
-    documentation: '/api/health',
+    healthCheck: '/api/v1/health',
   });
 });
 
-// Mount modular API routes under /api
+// Mount modular versioned API routes under /api (/api/v1/...)
 app.use('/api', apiRoutes);
 
 // 404 Handler for undefined routes

@@ -231,24 +231,51 @@ Frontend will start at: `http://localhost:5173`
 1. Start the backend (`cd backend && npm run dev`).
 2. Test via web browser, Postman, or curl:
    ```bash
-   curl http://localhost:5000/api/health
+   curl http://localhost:5000/api/v1/health
    ```
-3. Expected JSON response:
+3. Expected JSON response (when PostgreSQL is connected):
    ```json
    {
      "success": true,
-     "message": "Server is running and healthy",
+     "statusCode": 200,
+     "message": "Server and database are healthy",
      "data": {
        "status": "healthy",
        "service": "Surplus Food Donation & NGO Coordination Backend API",
+       "version": "v1",
        "uptime": "12 seconds",
        "environment": "development",
+       "database": {
+         "status": "connected",
+         "latencyMs": 4
+       },
        "timestamp": "2026-11-27T08:00:00.000Z"
-     }
+     },
+     "timestamp": "2026-11-27T08:00:00.000Z"
    }
    ```
+   *(If PostgreSQL is unreachable, the endpoint gracefully returns HTTP `503 Service Unavailable` with `database.status: "disconnected"` without exposing credentials.)*
+
 4. Open the frontend in your browser: `http://localhost:5173`
    The **Backend Connectivity Status** widget will display a green **"Connected"** badge along with current uptime and timestamp.
+
+---
+
+## 🗄️ Database Setup & Prisma Migrations
+
+1. Ensure PostgreSQL is installed and running, and create the database (e.g. `surplus_food_db`).
+2. Update `backend/.env` with your PostgreSQL connection string (`DATABASE_URL`).
+3. Run the initial migration and generate the Prisma Client:
+   ```bash
+   cd backend
+   npx prisma migrate dev --name init
+   npx prisma generate
+   ```
+4. Useful Prisma commands:
+   - `npm run prisma:validate` — Validate `prisma/schema.prisma`
+   - `npm run prisma:migrate` — Create and apply migrations in development
+   - `npm run prisma:deploy` — Apply pending migrations in production
+   - `npm run prisma:studio` — Open Prisma Studio GUI to inspect database records
 
 ---
 

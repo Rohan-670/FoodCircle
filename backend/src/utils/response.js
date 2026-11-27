@@ -8,8 +8,10 @@
 function sendSuccess(res, statusCode = 200, message = 'Success', data = null) {
   return res.status(statusCode).json({
     success: true,
+    statusCode,
     message,
     data,
+    timestamp: new Date().toISOString(),
   });
 }
 
@@ -21,11 +23,18 @@ function sendSuccess(res, statusCode = 200, message = 'Success', data = null) {
  * @param {any} errors - Optional detailed error list or object
  */
 function sendError(res, statusCode = 500, message = 'Internal Server Error', errors = null) {
-  return res.status(statusCode).json({
+  const payload = {
     success: false,
+    statusCode,
     message,
-    errors,
-  });
+    timestamp: new Date().toISOString(),
+  };
+
+  if (errors !== null && errors !== undefined) {
+    payload.errors = errors;
+  }
+
+  return res.status(statusCode).json(payload);
 }
 
 module.exports = {

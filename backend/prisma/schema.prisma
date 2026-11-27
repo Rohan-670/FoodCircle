@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum UserRole {
+  DONOR
+  NGO
+  VOLUNTEER
+  ADMIN
+}
+
+enum DonationStatus {
+  AVAILABLE
+  REQUESTED
+  ASSIGNED
+  IN_TRANSIT
+  DELIVERED
+  EXPIRED
+  CANCELLED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum DeliveryStatus {
+  ASSIGNED
+  PICKED_UP
+  IN_TRANSIT
+  DELIVERED
+  FAILED
+}
+
+enum NotificationType {
+  DONATION_CREATED
+  REQUEST_RECEIVED
+  REQUEST_APPROVED
+  REQUEST_REJECTED
+  DELIVERY_ASSIGNED
+  DELIVERY_COMPLETED
+  SYSTEM_ALERT
+}
+
+// ==========================================
+// MODELS
+// ==========================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  phone        String?
+  role         UserRole
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Role-specific 1-to-1 profiles
+  donorProfile     DonorProfile?
+  ngoProfile       NGOProfile?
+  volunteerProfile VolunteerProfile?
+
+  // 1-to-Many notifications
+  notifications Notification[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model DonorProfile {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  organizationName String
+  businessType     String
+  address          String
+  latitude         Float?
+  longitude        Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  donations Donation[]
+}
+
+model NGOProfile {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  organizationName   String
+  registrationNumber String   @unique
+  address            String
+  latitude           Float?
+  longitude          Float?
+  capacity           Int?
+  isVerified         Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  donationRequests DonationRequest[]
+}
+
+model VolunteerProfile {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  vehicleType      String?
+  isAvailable      Boolean  @default(true)
+  currentLatitude  Float?
+  currentLongitude Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries Delivery[]
+}
+
+model Donation {
+  id            String         @id @default(uuid())
+  donorId       String
+  title         String
+  description   String?
+  foodCategory  String
+  quantity      Int
+  unit          String
+  expiresAt     DateTime
+  pickupAddress String
+  latitude      Float?
+  longitude     Float?
+  status        DonationStatus @default(AVAILABLE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  donor    DonorProfile      @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  requests DonationRequest[]
+  delivery Delivery?
+
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model DonationRequest {
+  id                String        @id @default(uuid())
+  donationId        String
+  ngoId             String
+  requestedQuantity Int?
+  notes             String?
+  status            RequestStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  donation Donation   @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  ngo      NGOProfile @relation(fields: [ngoId], references: [id], onDelete: Cascade)
+
+  // Ensure an NGO cannot submit duplicate requests for the same donation
+  @@unique([donationId, ngoId])
+  @@index([status])
+}
+
+model Delivery {
+  id          String         @id @default(uuid())
+  donationId  String         @unique
+  volunteerId String?
+  status      DeliveryStatus @default(ASSIGNED)
+  pickedUpAt  DateTime?
+  deliveredAt DateTime?
+  notes       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  donation  Donation          @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  volunteer VolunteerProfile? @relation(fields: [volunteerId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+}

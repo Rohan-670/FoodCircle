@@ -1,9 +1,9 @@
 const express = require('express');
-const healthRoutes = require('./health.routes');
+const v1Routes = require('./v1');
 
 const router = express.Router();
 
-// Mount individual route modules
-router.use('/health', healthRoutes);
+// Mount versioned API routes
+router.use('/v1', v1Routes);
 
 module.exports = router;
