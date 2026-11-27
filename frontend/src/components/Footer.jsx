@@ -1,13 +1,16 @@
 import React from 'react';
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="footer">
-      <p>
-        Surplus Food Donation & NGO Coordination System &copy; {currentYear}. Production-Ready Student Project.
-      </p>
+    <footer className="site-footer">
+      <div className="site-footer-inner">
+        <span>
+          <strong>FoodCircle</strong> — Surplus Food Donation &amp; NGO Coordination System
+        </span>
+        <span>
+          Static Editorial UI Preview • Sample Mock Data Only
+        </span>
+      </div>
     </footer>
   );
 }

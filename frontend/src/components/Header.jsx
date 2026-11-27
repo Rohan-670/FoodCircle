@@ -1,142 +1,73 @@
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import { Button } from './ui';
 
-export function Header({ currentPage, onNavigate, unreadCount = 0 }) {
-  const { user, isAuthenticated, logout } = useAuth();
+const NAV_ITEMS = [
+  { id: 'landing', label: 'Home' },
+  { id: 'listings', label: 'Listings' },
+  { id: 'details', label: 'Details' },
+  { id: 'donor-dashboard', label: 'Donor' },
+  { id: 'ngo-dashboard', label: 'NGO' },
+  { id: 'volunteer-dashboard', label: 'Volunteer' },
+  { id: 'admin-dashboard', label: 'Admin' },
+  { id: 'settings', label: 'Settings' },
+];
 
-  const handleLogout = async () => {
-    await logout();
-    onNavigate('home');
-  };
+export function Header({ currentPage, onNavigate }) {
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="header">
-      <div
-        className="header-logo"
-        style={{ cursor: 'pointer' }}
-        onClick={() => onNavigate('home')}
-      >
-        <span className="header-icon" role="img" aria-label="bowl of food">
-          🍲
-        </span>
-        <h1 className="header-title">Surplus Food Donation &amp; NGO Coordination</h1>
+    <header className="site-header">
+      <div className="site-header-inner">
+        <button
+          type="button"
+          className="brand-link"
+          onClick={() => onNavigate('landing')}
+        >
+          <span className="brand-mark" aria-hidden="true">
+            FC
+          </span>
+          <span>
+            <span className="brand-name">FoodCircle</span>
+            <span className="brand-sub">Surplus Food Rescue</span>
+          </span>
+        </button>
+
+        <nav className="primary-nav" aria-label="Primary navigation">
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`nav-item ${currentPage === item.id ? 'is-active' : ''}`}
+              aria-current={currentPage === item.id ? 'page' : undefined}
+              onClick={() => onNavigate(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="header-actions">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+          >
+            {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onNavigate('login')}
+          >
+            Login
+          </Button>
+          <Button size="sm" onClick={() => onNavigate('signup')}>
+            Sign Up
+          </Button>
+        </div>
       </div>
-
-      <nav className="header-nav">
-        <button
-          type="button"
-          className={`nav-button ${currentPage === 'home' ? 'nav-active' : ''}`}
-          onClick={() => onNavigate('home')}
-        >
-          Home
-        </button>
-        <button
-          type="button"
-          className={`nav-button ${currentPage === 'impact' ? 'nav-active' : ''}`}
-          onClick={() => onNavigate('impact')}
-        >
-          Impact
-        </button>
-
-        {isAuthenticated ? (
-          <>
-            {user.role !== 'ADMIN' && (
-              <button
-                type="button"
-                className={`nav-button ${currentPage === 'role-dashboard' ? 'nav-active' : ''}`}
-                onClick={() => onNavigate('role-dashboard')}
-              >
-                Overview
-              </button>
-            )}
-            {user.role === 'DONOR' && (
-              <button
-                type="button"
-                className={`nav-button ${currentPage === 'donor-dashboard' ? 'nav-active' : ''}`}
-                onClick={() => onNavigate('donor-dashboard')}
-              >
-                Donor Dashboard
-              </button>
-            )}
-            {user.role === 'NGO' && (
-              <button
-                type="button"
-                className={`nav-button ${currentPage === 'ngo-browse' ? 'nav-active' : ''}`}
-                onClick={() => onNavigate('ngo-browse')}
-              >
-                Browse Donations
-              </button>
-            )}
-            {(user.role === 'DONOR' || user.role === 'NGO') && (
-              <button
-                type="button"
-                className={`nav-button ${currentPage === 'recommendations' ? 'nav-active' : ''}`}
-                onClick={() => onNavigate('recommendations')}
-              >
-                Recommendations
-              </button>
-            )}
-            {(user.role === 'DONOR' ||
-              user.role === 'NGO' ||
-              user.role === 'VOLUNTEER') && (
-              <button
-                type="button"
-                className={`nav-button ${currentPage === 'deliveries' ? 'nav-active' : ''}`}
-                onClick={() => onNavigate('deliveries')}
-              >
-                Deliveries
-              </button>
-            )}
-            {user.role === 'ADMIN' && (
-              <button
-                type="button"
-                className={`nav-button ${currentPage === 'admin-dashboard' ? 'nav-active' : ''}`}
-                onClick={() => onNavigate('admin-dashboard')}
-              >
-                Admin Dashboard
-              </button>
-            )}
-            <button
-              type="button"
-              className={`nav-button ${currentPage === 'notifications' ? 'nav-active' : ''}`}
-              onClick={() => onNavigate('notifications')}
-            >
-              Notifications {unreadCount > 0 ? `(${unreadCount})` : ''}
-            </button>
-            <button
-              type="button"
-              className={`nav-button ${currentPage === 'profile' ? 'nav-active' : ''}`}
-              onClick={() => onNavigate('profile')}
-            >
-              {user.fullName} ({user.role})
-            </button>
-            <button
-              type="button"
-              className="nav-button nav-outline"
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              type="button"
-              className={`nav-button ${currentPage === 'login' ? 'nav-active' : ''}`}
-              onClick={() => onNavigate('login')}
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              className="nav-button nav-primary"
-              onClick={() => onNavigate('signup')}
-            >
-              Sign Up
-            </button>
-          </>
-        )}
-      </nav>
     </header>
   );
 }

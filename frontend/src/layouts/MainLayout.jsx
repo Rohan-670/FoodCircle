@@ -2,15 +2,11 @@ import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-export function MainLayout({ children, currentPage, onNavigate, unreadCount }) {
+export function MainLayout({ children, currentPage, onNavigate }) {
   return (
-    <div className="layout">
-      <Header
-        currentPage={currentPage}
-        onNavigate={onNavigate}
-        unreadCount={unreadCount}
-      />
-      <main className="main-content">{children}</main>
+    <div className="app-shell">
+      <Header currentPage={currentPage} onNavigate={onNavigate} />
+      <main className="main-body">{children}</main>
       <Footer />
     </div>
   );

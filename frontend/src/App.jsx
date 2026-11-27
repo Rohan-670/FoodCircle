@@ -1,95 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import * as notificationService from './services/notificationService';
+import React, { useState } from 'react';
+import { ThemeProvider } from './context/ThemeContext';
 import MainLayout from './layouts/MainLayout';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
+import LandingPage from './pages/LandingPage';
 import SignupPage from './pages/SignupPage';
-import ProfilePage from './pages/ProfilePage';
+import LoginPage from './pages/LoginPage';
 import DonorDashboardPage from './pages/DonorDashboardPage';
-import NgoBrowsePage from './pages/NgoBrowsePage';
-import RecommendationsPage from './pages/RecommendationsPage';
-import DeliveryTrackingPage from './pages/DeliveryTrackingPage';
+import NgoDashboardPage from './pages/NgoDashboardPage';
+import VolunteerDashboardPage from './pages/VolunteerDashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
-import RoleDashboardPage from './pages/RoleDashboardPage';
-import NotificationsPage from './pages/NotificationsPage';
-import ImpactAnalyticsPage from './pages/ImpactAnalyticsPage';
+import DonationListingPage from './pages/DonationListingPage';
+import DonationDetailsPage from './pages/DonationDetailsPage';
+import ProfileSettingsPage from './pages/ProfileSettingsPage';
 import './styles/App.css';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+export function App() {
+  const [currentPage, setCurrentPage] = useState('landing');
+  const [selectedDonationId, setSelectedDonationId] = useState('mock-don-101');
 
-function AppContent() {
-  const { user, isAuthenticated } = useAuth();
-  const [currentPage, setCurrentPage] = useState('home');
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setUnreadCount(0);
-      return;
+  const handleNavigate = (page, donationId = null) => {
+    if (donationId) {
+      setSelectedDonationId(donationId);
     }
-
-    notificationService
-      .getUnreadCount()
-      .then((res) => setUnreadCount(res.unreadCount || 0))
-      .catch(() => {});
-
-    const socket = io(SOCKET_URL, { withCredentials: true });
-    socket.on('notification:new', () => {
-      setUnreadCount((prev) => prev + 1);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [isAuthenticated, user?.id]);
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'login':
-        return <LoginPage onNavigate={setCurrentPage} />;
       case 'signup':
-        return <SignupPage onNavigate={setCurrentPage} />;
-      case 'profile':
-        return <ProfilePage onNavigate={setCurrentPage} />;
-      case 'role-dashboard':
-        return <RoleDashboardPage onNavigate={setCurrentPage} />;
+        return <SignupPage onNavigate={handleNavigate} />;
+      case 'login':
+        return <LoginPage onNavigate={handleNavigate} />;
       case 'donor-dashboard':
-        return <DonorDashboardPage />;
-      case 'ngo-browse':
-        return <NgoBrowsePage />;
-      case 'recommendations':
-        return <RecommendationsPage />;
-      case 'deliveries':
-        return <DeliveryTrackingPage />;
+        return <DonorDashboardPage onNavigate={handleNavigate} />;
+      case 'ngo-dashboard':
+        return <NgoDashboardPage onNavigate={handleNavigate} />;
+      case 'volunteer-dashboard':
+        return <VolunteerDashboardPage />;
       case 'admin-dashboard':
         return <AdminDashboardPage />;
-      case 'notifications':
-        return <NotificationsPage onUnreadChange={setUnreadCount} />;
-      case 'impact':
-        return <ImpactAnalyticsPage />;
+      case 'listings':
+        return <DonationListingPage onNavigate={handleNavigate} />;
+      case 'details':
+        return (
+          <DonationDetailsPage
+            donationId={selectedDonationId}
+            onNavigate={handleNavigate}
+          />
+        );
+      case 'settings':
+        return <ProfileSettingsPage />;
+      case 'landing':
       default:
-        return <HomePage />;
+        return <LandingPage onNavigate={handleNavigate} />;
     }
   };
 
   return (
-    <MainLayout
-      currentPage={currentPage}
-      onNavigate={setCurrentPage}
-      unreadCount={unreadCount}
-    >
-      {renderPage()}
-    </MainLayout>
-  );
-}
-
-export function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider>
+      <MainLayout currentPage={currentPage} onNavigate={handleNavigate}>
+        {renderPage()}
+      </MainLayout>
+    </ThemeProvider>
   );
 }
 
