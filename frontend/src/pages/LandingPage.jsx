@@ -55,15 +55,15 @@ export function LandingPage({ onNavigate }) {
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.5rem' }}>
               <Badge tone="forest">Food Rescue</Badge>
               <Badge tone="mint">Verified Network</Badge>
+              <Badge tone="terracotta">Live Telematics</Badge>
             </div>
 
-            <h1 className="hero-title-lead" style={{ fontSize: '2.75rem', margin: '0.5rem 0 0.85rem' }}>
-              Fresh food rescue, <span className="hero-title-highlight">made simple</span>.
+            <h1 className="hero-title-lead" style={{ fontSize: '2.6rem', margin: '0.5rem 0 0.85rem' }}>
+              Connecting surplus food with <span className="hero-title-highlight">those who need it</span>.
             </h1>
 
-            <p className="hero-lead" style={{ fontSize: '1.02rem', maxWidth: '52ch', marginBottom: '1.25rem' }}>
-              Connect commercial kitchens and grocery donors directly with local charities
-              and volunteer couriers. Less waste, faster delivery.
+            <p className="hero-lead" style={{ fontSize: '1.02rem', maxWidth: '54ch', marginBottom: '1.25rem' }}>
+              A smart platform for coordinating food donations, NGO requirements, volunteers, and delivery tracking.
             </p>
 
             <div className="hero-cta-pills">
@@ -89,6 +89,14 @@ export function LandingPage({ onNavigate }) {
                 onClick={() => onNavigate('volunteer-dashboard')}
               >
                 Volunteer
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                className="btn-pill"
+                onClick={() => onNavigate('impact-dashboard')}
+              >
+                Impact Dashboard
               </Button>
             </div>
           </div>
@@ -155,6 +163,180 @@ export function LandingPage({ onNavigate }) {
           <div className="impact-kpi-num">{MOCK_IMPACT_METRICS.avgDispatchSla}</div>
           <div className="impact-kpi-sub">Average Delivery</div>
           <div className="impact-kpi-detail">From kitchen to distribution</div>
+        </div>
+      </section>
+
+      {/* Slide 2: The Real-World Problem & Our Solution */}
+      <section style={{ marginBottom: '3rem' }}>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <span className="page-eyebrow">Problem &amp; Solution</span>
+          <h2 style={{ fontSize: '1.85rem' }}>The Real-World Challenge &amp; Our System</h2>
+        </div>
+
+        <div className="grid-2" style={{ gap: '1.5rem', marginBottom: '1.5rem' }}>
+          {/* The Challenge */}
+          <div
+            style={{
+              backgroundColor: '#1E362D',
+              color: '#ffffff',
+              padding: '1.75rem',
+              borderRadius: 'var(--radius-lg, 16px)',
+              boxShadow: 'var(--shadow-md)',
+            }}
+          >
+            <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#B8D7C7', fontWeight: 700 }}>
+              The Challenge
+            </span>
+            <h3 style={{ fontSize: '1.5rem', color: '#F6F2E8', margin: '0.4rem 0 1rem', lineHeight: 1.25 }}>
+              Good food goes to waste while people go hungry.
+            </h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.65rem', fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)' }}>
+              <li style={{ display: 'flex', gap: '0.5rem' }}>
+                <span style={{ color: '#E27244' }}>✕</span> Disjointed calls and messages between parties
+              </li>
+              <li style={{ display: 'flex', gap: '0.5rem' }}>
+                <span style={{ color: '#E27244' }}>✕</span> Delays and difficulty coordinating transport
+              </li>
+              <li style={{ display: 'flex', gap: '0.5rem' }}>
+                <span style={{ color: '#E27244' }}>✕</span> Low visibility and uncertain delivery
+              </li>
+              <li style={{ display: 'flex', gap: '0.5rem' }}>
+                <span style={{ color: '#E27244' }}>✕</span> Mismatched dietary needs and storage requirements
+              </li>
+            </ul>
+          </div>
+
+          {/* Our Solution */}
+          <div
+            style={{
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--border-color)',
+              padding: '1.75rem',
+              borderRadius: 'var(--radius-lg, 16px)',
+              boxShadow: 'var(--shadow-sm)',
+            }}
+          >
+            <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-forest)', fontWeight: 700 }}>
+              Our Solution
+            </span>
+            <h3 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', margin: '0.4rem 0 1rem', lineHeight: 1.25 }}>
+              One platform to connect, coordinate, and deliver.
+            </h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.65rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              <li style={{ display: 'flex', gap: '0.5rem' }}>
+                <span style={{ color: 'var(--color-forest)', fontWeight: 'bold' }}>✓</span> Smart matching of donors with verified NGOs
+              </li>
+              <li style={{ display: 'flex', gap: '0.5rem' }}>
+                <span style={{ color: 'var(--color-forest)', fontWeight: 'bold' }}>✓</span> End-to-end collection and delivery coordination
+              </li>
+              <li style={{ display: 'flex', gap: '0.5rem' }}>
+                <span style={{ color: 'var(--color-forest)', fontWeight: 'bold' }}>✓</span> Volunteer assignment and live route tracking
+              </li>
+              <li style={{ display: 'flex', gap: '0.5rem' }}>
+                <span style={{ color: 'var(--color-forest)', fontWeight: 'bold' }}>✓</span> Safety compliance and audit-ready chain of custody
+              </li>
+              <li style={{ display: 'flex', gap: '0.5rem' }}>
+                <span style={{ color: 'var(--color-forest)', fontWeight: 'bold' }}>✓</span> Real-time donation monitoring and updates
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* The Old Way vs The New Way Visual Flow Comparison */}
+        <div className="grid-2" style={{ gap: '1.25rem' }}>
+          <div style={{ backgroundColor: 'var(--bg-muted)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
+            <strong style={{ fontSize: '0.86rem', color: 'var(--color-saffron)', textTransform: 'uppercase' }}>The Old Way</strong>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap', fontSize: '0.86rem' }}>
+              <span className="badge">Donor</span>
+              <span>→</span>
+              <span className="badge">Phone Calls</span>
+              <span>→</span>
+              <span className="badge">Delays &amp; Confusion</span>
+              <span>→</span>
+              <span className="badge" style={{ backgroundColor: '#FEE2E2', color: '#991B1B' }}>Uncertain Delivery</span>
+            </div>
+          </div>
+
+          <div style={{ backgroundColor: 'var(--color-mint)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-mint-border)' }}>
+            <strong style={{ fontSize: '0.86rem', color: 'var(--color-forest)', textTransform: 'uppercase' }}>The New Way</strong>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap', fontSize: '0.86rem' }}>
+              <span className="badge" style={{ backgroundColor: '#ffffff' }}>Donor</span>
+              <span>→</span>
+              <span className="badge" style={{ backgroundColor: 'var(--color-forest)', color: '#ffffff' }}>Platform</span>
+              <span>→</span>
+              <span className="badge" style={{ backgroundColor: '#ffffff' }}>NGO Match</span>
+              <span>→</span>
+              <span className="badge" style={{ backgroundColor: '#ffffff' }}>Volunteer Assigned</span>
+              <span>→</span>
+              <span className="badge" style={{ backgroundColor: 'var(--color-forest)', color: '#ffffff' }}>Confirmed Delivery ✓</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Slide 3: 8-Step End-to-End Workflow */}
+      <section style={{ marginBottom: '3rem' }}>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <span className="page-eyebrow">Lifecycle</span>
+          <h2 style={{ fontSize: '1.85rem' }}>8-Step End-to-End Workflow</h2>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+            From commercial kitchen listing to verified shelter distribution and impact recording.
+          </p>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            gap: '0.75rem',
+          }}
+        >
+          {[
+            { step: '1', title: 'Donor Lists Food', desc: 'Shares batch details and constraints' },
+            { step: '2', title: 'Platform Matches', desc: 'Nearby verified NGOs are identified' },
+            { step: '3', title: 'NGO Accepts', desc: 'Reviews and confirms allocation' },
+            { step: '4', title: 'Volunteer Assigned', desc: 'Courier accepts route for pickup' },
+            { step: '5', title: 'QR Pickup Verified', desc: 'Scans code at donor location' },
+            { step: '6', title: 'Live Telematics', desc: 'Real-time GPS route tracking' },
+            { step: '7', title: 'NGO Receipt Scanned', desc: 'Final QR verification on arrival' },
+            { step: '8', title: 'Impact Recorded', desc: 'Logged in public audit ledger' },
+          ].map((item) => (
+            <div
+              key={item.step}
+              style={{
+                backgroundColor: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1rem 0.75rem',
+                textAlign: 'center',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+            >
+              <div
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  backgroundColor: 'var(--color-forest)',
+                  color: '#ffffff',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  marginBottom: '0.5rem',
+                }}
+              >
+                {item.step}
+              </div>
+              <strong style={{ display: 'block', fontSize: '0.84rem', lineHeight: 1.25, marginBottom: '0.3rem' }}>
+                {item.title}
+              </strong>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                {item.desc}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -396,6 +578,101 @@ export function LandingPage({ onNavigate }) {
         </div>
       </section>
 
+      {/* Slide 6: Food Safety & Trust */}
+      <section style={{ marginBottom: '3rem' }}>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <span className="page-eyebrow">Safety &amp; Compliance</span>
+          <h2 style={{ fontSize: '1.85rem' }}>Food Safety &amp; Trust</h2>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+            Rigorous traceability, complete preparation logs, and physical inspection standards.
+          </p>
+        </div>
+
+        <div className="grid-2" style={{ gap: '1.5rem', marginBottom: '1.25rem' }}>
+          <Card title="Complete Food Information" subtitle="Mandatory specifications logged for every batch">
+            <div style={{ display: 'grid', gap: '0.65rem', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-forest)', fontWeight: 700 }}>•</span>
+                <span><strong>Record Food Type &amp; Quantity:</strong> Precise item breakdown and portion count</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-forest)', fontWeight: 700 }}>•</span>
+                <span><strong>Preparation &amp; Packing Time:</strong> Timestamped kitchen cooking records</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-forest)', fontWeight: 700 }}>•</span>
+                <span><strong>Storage &amp; Handling Details:</strong> Thermal holding temp (e.g. &gt;65°C hot, &lt;4°C cold)</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-forest)', fontWeight: 700 }}>•</span>
+                <span><strong>Collection Deadline:</strong> Strict safe consumption expiry window</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-forest)', fontWeight: 700 }}>•</span>
+                <span><strong>Donor Details:</strong> Contact, kitchen location, and verified establishment id</span>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Trusted Verification Chain" subtitle="Accountability through every handover stage">
+            <div style={{ display: 'grid', gap: '0.65rem', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-saffron)', fontWeight: 700 }}>1.</span>
+                <span><strong>Verified Donor &amp; NGO Accounts:</strong> KYC and premise validation</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-saffron)', fontWeight: 700 }}>2.</span>
+                <span><strong>Food Information Before Acceptance:</strong> Transparent review before claiming</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-saffron)', fontWeight: 700 }}>3.</span>
+                <span><strong>Pickup &amp; Delivery Confirmation:</strong> Single-use cryptographic QR scans</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-saffron)', fontWeight: 700 }}>4.</span>
+                <span><strong>Traceable History of Each Donation:</strong> Immutable governance audit logs</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-saffron)', fontWeight: 700 }}>5.</span>
+                <span><strong>Human Visual Inspection:</strong> Mandatory packaging seal check upon arrival</span>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Slide 6 Important Reminder Callout */}
+        <div
+          style={{
+            backgroundColor: 'rgba(200, 121, 74, 0.12)',
+            border: '1px solid rgba(200, 121, 74, 0.3)',
+            borderRadius: 'var(--radius-md)',
+            padding: '1rem 1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+            flexWrap: 'wrap',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'var(--color-saffron)',
+              color: '#ffffff',
+              padding: '0.35rem 0.65rem',
+              borderRadius: 'var(--radius-sm)',
+              fontWeight: 700,
+              fontSize: '0.78rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}
+          >
+            Important Reminder
+          </div>
+          <div style={{ fontSize: '0.88rem', color: 'var(--text-primary)', flex: 1 }}>
+            <strong>AI organizes information but cannot certify food safety.</strong> Proper thermal handling, hygiene standards, and physical human inspection remain essential at every collection and distribution point.
+          </div>
+        </div>
+      </section>
+
       {/* Clean, Minimal FAQ */}
       <section style={{ marginBottom: '2.5rem' }}>
         <div style={{ marginBottom: '1rem' }}>
@@ -407,7 +684,7 @@ export function LandingPage({ onNavigate }) {
           {[
             {
               q: 'How does the transparent matching score work?',
-              a: 'FoodCircle calculates an explainable score based on Distance (30%), Food Category (20%), Quantity (20%), Urgency (15%), and NGO Capacity (15%). Matches are never accepted automatically without confirmation.',
+              a: 'The system calculates an explainable score based on Distance (30%), Food Category (20%), Quantity (20%), Urgency (15%), and NGO Capacity (15%). Matches are never accepted automatically without confirmation.',
             },
             {
               q: 'How do single-use QR codes verify pickup and delivery?',

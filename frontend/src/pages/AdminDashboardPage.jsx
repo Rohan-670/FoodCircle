@@ -9,7 +9,7 @@ import {
   getStoredDonations,
 } from '../data/store';
 
-export function AdminDashboardPage() {
+export function AdminDashboardPage({ onNavigate }) {
   const [section, setSection] = useState('verifications');
   const [verifications, setVerifications] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
@@ -68,6 +68,13 @@ export function AdminDashboardPage() {
       activeSection={section}
       onSectionChange={setSection}
       metrics={metrics}
+      actions={
+        onNavigate && (
+          <Button variant="secondary" onClick={() => onNavigate('impact-dashboard')}>
+            Impact Analytics →
+          </Button>
+        )
+      }
     >
       {feedback && (
         <div style={{ backgroundColor: 'var(--color-mint)', border: '1px solid var(--color-mint-border)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.88rem', color: 'var(--color-forest)', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { Card, Badge, Button, Input } from '../components/ui';
 import { getStoredDeliveries, updateStoredDelivery } from '../data/store';
+import LiveDeliveryTracker from '../components/LiveDeliveryTracker';
 
 const WORKFLOW_STEPS = [
   'ACCEPTED',
@@ -11,7 +12,7 @@ const WORKFLOW_STEPS = [
   'DELIVERY_CONFIRMED',
 ];
 
-export function VolunteerDashboardPage() {
+export function VolunteerDashboardPage({ onNavigate }) {
   const [section, setSection] = useState('assigned');
   const [deliveries, setDeliveries] = useState([]);
   const [activeTask, setActiveTask] = useState(null);
@@ -114,6 +115,23 @@ export function VolunteerDashboardPage() {
 
       {section === 'assigned' && activeTask && (
         <div className="form-stack">
+          {/* Slide 5 Live Delivery Tracking Interactive Console */}
+          <LiveDeliveryTracker
+            task={activeTask}
+            onUpdateStatus={(newStatus) => {
+              const stepIdx = WORKFLOW_STEPS.indexOf(newStatus);
+              if (stepIdx !== -1) {
+                setTimelineStep(stepIdx);
+                const updatedList = updateStoredDelivery(activeTask.id, {
+                  status: newStatus,
+                  timelineStep: stepIdx,
+                });
+                setDeliveries(updatedList);
+                setActiveTask({ ...activeTask, status: newStatus, timelineStep: stepIdx });
+              }
+            }}
+          />
+
           <Card
             title={activeTask.title}
             subtitle={`${activeTask.distanceKm} km route • ETA ~${activeTask.etaMinutes} mins`}

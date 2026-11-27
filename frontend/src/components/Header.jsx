@@ -2,13 +2,15 @@ import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './ui';
+import Logo from './Logo';
 
 const NAV_ITEMS = [
   { id: 'landing', label: 'Home' },
   { id: 'listings', label: 'Surplus Catalog' },
   { id: 'donor-dashboard', label: 'Donate Food' },
   { id: 'ngo-dashboard', label: 'NGO Portal' },
-  { id: 'volunteer-dashboard', label: 'Volunteer' },
+  { id: 'volunteer-dashboard', label: 'Volunteer & Tracking' },
+  { id: 'impact-dashboard', label: 'Impact Dashboard' },
   { id: 'admin-dashboard', label: 'Governance' },
 ];
 
@@ -28,13 +30,12 @@ export function Header({ currentPage, onNavigate }) {
           type="button"
           className="brand-link"
           onClick={() => onNavigate('landing')}
+          title="Surplus Food Donation & NGO Coordination System"
         >
-          <span className="brand-mark" aria-hidden="true">
-            FC
-          </span>
-          <span>
-            <span className="brand-name">FoodCircle</span>
-            <span className="brand-sub">Food Rescue Network</span>
+          <Logo size={36} />
+          <span className="brand-text-block">
+            <span className="brand-name">Surplus Food Donation &amp; NGO Coordination System</span>
+            <span className="brand-sub">Connecting Surplus Food With Those Who Need It</span>
           </span>
         </button>
 

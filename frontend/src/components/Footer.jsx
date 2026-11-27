@@ -1,4 +1,5 @@
 import React from 'react';
+import Logo from './Logo';
 
 export function Footer({ onNavigate }) {
   const handleNav = (page) => {
@@ -13,12 +14,12 @@ export function Footer({ onNavigate }) {
       <div className="site-footer-inner" style={{ flexDirection: 'column', gap: '1.75rem' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', width: '100%' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.65rem' }}>
-              <span className="brand-mark" style={{ width: '28px', height: '28px', fontSize: '0.85rem' }}>FC</span>
-              <strong>FoodCircle</strong>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.65rem' }}>
+              <Logo size={28} />
+              <strong style={{ fontSize: '0.95rem' }}>Surplus Food Donation &amp; NGO Coordination System</strong>
             </div>
-            <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: '28ch' }}>
-              Connecting food donors, charities, and dispatch volunteers to minimize waste.
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: '32ch' }}>
+              Connecting surplus food with those who need it through real-time coordination, transparent matching, and volunteer tracking.
             </p>
           </div>
 
@@ -42,7 +43,12 @@ export function Footer({ onNavigate }) {
               </li>
               <li>
                 <button type="button" onClick={() => handleNav('volunteer-dashboard')}>
-                  Volunteer Tasks
+                  Volunteer &amp; Tracking
+                </button>
+              </li>
+              <li>
+                <button type="button" onClick={() => handleNav('impact-dashboard')}>
+                  Impact Dashboard
                 </button>
               </li>
             </ul>

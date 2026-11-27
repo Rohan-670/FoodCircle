@@ -12,6 +12,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import DonationListingPage from './pages/DonationListingPage';
 import DonationDetailsPage from './pages/DonationDetailsPage';
 import ProfileSettingsPage from './pages/ProfileSettingsPage';
+import ImpactDashboardPage from './pages/ImpactDashboardPage';
 import './styles/App.css';
 
 export function App() {
@@ -37,9 +38,11 @@ export function App() {
       case 'ngo-dashboard':
         return <NgoDashboardPage onNavigate={handleNavigate} />;
       case 'volunteer-dashboard':
-        return <VolunteerDashboardPage />;
+        return <VolunteerDashboardPage onNavigate={handleNavigate} />;
+      case 'impact-dashboard':
+        return <ImpactDashboardPage onNavigate={handleNavigate} />;
       case 'admin-dashboard':
-        return <AdminDashboardPage />;
+        return <AdminDashboardPage onNavigate={handleNavigate} />;
       case 'listings':
         return <DonationListingPage onNavigate={handleNavigate} />;
       case 'details':
