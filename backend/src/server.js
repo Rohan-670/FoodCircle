@@ -1,6 +1,10 @@
 const app = require('./app');
 const environment = require('./config/environment');
 const { connectDatabase, disconnectDatabase } = require('./config/database');
+const {
+  startDonationExpiryJob,
+  stopDonationExpiryJob,
+} = require('./jobs/donationExpiry.job');
 const logger = require('./utils/logger');
 
 let server;
@@ -8,6 +12,9 @@ let server;
 async function startServer() {
   // Attempt initial PostgreSQL connection (fails gracefully if DB is offline)
   await connectDatabase();
+
+  // Start scheduled job to mark expired donations
+  startDonationExpiryJob();
 
   server = app.listen(environment.port, () => {
     logger.info(`=======================================================`);
@@ -21,6 +28,7 @@ async function startServer() {
 
 async function gracefulShutdown(signal) {
   logger.info(`Received ${signal}. Shutting down gracefully...`);
+  stopDonationExpiryJob();
 
   if (server) {
     server.close(async () => {

@@ -76,6 +76,13 @@ function errorHandler(err, req, res, next) {
     statusCode = 401;
     message = 'Authentication token has expired. Please log in again.';
     errors = null;
+  } else if (err.name === 'MulterError') {
+    statusCode = 400;
+    message =
+      err.code === 'LIMIT_FILE_SIZE'
+        ? 'Uploaded image exceeds the maximum allowed size of 5 MB.'
+        : `File upload error: ${err.message}`;
+    errors = null;
   } else if (err.type === 'entity.parse.failed') {
     statusCode = 400;
     message = 'Invalid JSON payload in request body.';

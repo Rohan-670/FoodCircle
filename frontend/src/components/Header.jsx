@@ -33,6 +33,24 @@ export function Header({ currentPage, onNavigate }) {
 
         {isAuthenticated ? (
           <>
+            {user.role === 'DONOR' && (
+              <button
+                type="button"
+                className={`nav-button ${currentPage === 'donor-dashboard' ? 'nav-active' : ''}`}
+                onClick={() => onNavigate('donor-dashboard')}
+              >
+                Donor Dashboard
+              </button>
+            )}
+            {user.role === 'NGO' && (
+              <button
+                type="button"
+                className={`nav-button ${currentPage === 'ngo-browse' ? 'nav-active' : ''}`}
+                onClick={() => onNavigate('ngo-browse')}
+              >
+                Browse Donations
+              </button>
+            )}
             <button
               type="button"
               className={`nav-button ${currentPage === 'profile' ? 'nav-active' : ''}`}

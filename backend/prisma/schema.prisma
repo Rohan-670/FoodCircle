@@ -21,11 +21,13 @@ enum UserRole {
 enum DonationStatus {
   AVAILABLE
   REQUESTED
+  ACCEPTED
   ASSIGNED
+  PICKED_UP
   IN_TRANSIT
   DELIVERED
-  EXPIRED
   CANCELLED
+  EXPIRED
 }
 
 enum RequestStatus {
@@ -131,20 +133,26 @@ model VolunteerProfile {
 }
 
 model Donation {
-  id            String         @id @default(uuid())
-  donorId       String
-  title         String
-  description   String?
-  foodCategory  String
-  quantity      Int
-  unit          String
-  expiresAt     DateTime
-  pickupAddress String
-  latitude      Float?
-  longitude     Float?
-  status        DonationStatus @default(AVAILABLE)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id                  String         @id @default(uuid())
+  donorId             String
+  title               String
+  description         String?
+  foodCategory        String
+  quantity            Int
+  unit                String
+  preparedAt          DateTime       @default(now())
+  expiresAt           DateTime
+  pickupAddress       String
+  latitude            Float?
+  longitude           Float?
+  imageUrl            String?
+  packagingInfo       String?
+  allergenInfo        String?
+  storageRequirements String?
+  safetyChecklist     Json?
+  status              DonationStatus @default(AVAILABLE)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 
   donor    DonorProfile      @relation(fields: [donorId], references: [id], onDelete: Cascade)
   requests DonationRequest[]

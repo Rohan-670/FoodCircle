@@ -5,6 +5,8 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
+import DonorDashboardPage from './pages/DonorDashboardPage';
+import NgoBrowsePage from './pages/NgoBrowsePage';
 import './styles/App.css';
 
 function AppContent() {
@@ -18,6 +20,10 @@ function AppContent() {
         return <SignupPage onNavigate={setCurrentPage} />;
       case 'profile':
         return <ProfilePage onNavigate={setCurrentPage} />;
+      case 'donor-dashboard':
+        return <DonorDashboardPage />;
+      case 'ngo-browse':
+        return <NgoBrowsePage />;
       default:
         return <HomePage />;
     }
