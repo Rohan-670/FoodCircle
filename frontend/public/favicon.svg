@@ -1,26 +1,33 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="forestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#2E5A4B" />
-      <stop offset="100%" stop-color="#1B332A" />
+    <linearGradient id="fcBaseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1B382E" />
+      <stop offset="100%" stop-color="#0F241C" />
     </linearGradient>
-    <linearGradient id="warmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#E27244" />
-      <stop offset="100%" stop-color="#C45A2C" />
+    <linearGradient id="fcLeafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
     </linearGradient>
-    <linearGradient id="mintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#E4F0E8" />
-      <stop offset="100%" stop-color="#B8D7C7" />
+    <linearGradient id="fcWarmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB923C" />
+      <stop offset="50%" stop-color="#F97316" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+    <linearGradient id="fcSparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF3C7" />
+      <stop offset="100%" stop-color="#FDE68A" />
     </linearGradient>
   </defs>
-  <circle cx="24" cy="24" r="23" fill="url(#forestGrad)" />
-  <circle cx="24" cy="24" r="19" stroke="url(#mintGrad)" stroke-width="1.2" stroke-dasharray="4 2.5" stroke-opacity="0.5" />
-  <circle cx="24" cy="5" r="2" fill="#E27244" />
-  <circle cx="7.5" cy="33.5" r="1.8" fill="#B8D7C7" />
-  <circle cx="40.5" cy="33.5" r="1.8" fill="#B8D7C7" />
-  <path d="M12 25 C12 34 17 38 24 38 C31 38 36 34 36 25 C31 28 17 28 12 25 Z" fill="url(#warmGrad)" />
-  <path d="M24 24 C17 21 16 13 24 10 C25.5 15 25.5 20 24 24 Z" fill="#D7E5DC" />
-  <path d="M24 24 C31 21 32 13 24 10 C26 15 25.5 19 24 24 Z" fill="#86B2A0" />
-  <path d="M24 11 L24 25" stroke="#1B332A" stroke-width="1.2" stroke-linecap="round" />
-  <path d="M24 26 C22.8 24.5 20.5 25 20.5 26.8 C20.5 28.5 24 31 24 31 C24 31 27.5 28.5 27.5 26.8 C27.5 25 25.2 24.5 24 26 Z" fill="#FFFFFF" />
+  <rect width="48" height="48" rx="14" fill="url(#fcBaseGrad)" />
+  <rect x="0.75" y="0.75" width="46.5" height="46.5" rx="13.25" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" />
+  <circle cx="24" cy="24" r="17" stroke="#34D399" stroke-width="1.2" stroke-dasharray="2.5 3.5" stroke-opacity="0.35" />
+  <path d="M24 10 C16 10 11 16 11 23 C11 29 15 34 21 36 C18 32 17 27 18 22 C19 16 23 12 24 10 Z" fill="url(#fcLeafGrad)" />
+  <path d="M24 38 C32 38 37 32 37 25 C37 19 33 14 27 12 C30 16 31 21 30 26 C29 32 25 36 24 38 Z" fill="url(#fcWarmGrad)" />
+  <path d="M21 36 C24 37.5 27 36 29 34 C31 32 32 29 32 26" stroke="url(#fcWarmGrad)" stroke-width="3.2" stroke-linecap="round" />
+  <path d="M27 12 C24 10.5 21 12 19 14 C17 16 16 19 16 22" stroke="url(#fcLeafGrad)" stroke-width="3.2" stroke-linecap="round" />
+  <circle cx="24" cy="24" r="3.2" fill="url(#fcSparkGrad)" />
+  <circle cx="24" cy="6.5" r="1.6" fill="#34D399" />
+  <circle cx="41.5" cy="24" r="1.6" fill="#FB923C" />
+  <circle cx="6.5" cy="24" r="1.6" fill="#FDE68A" />
 </svg>

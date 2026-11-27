@@ -15,11 +15,11 @@ export function Footer({ onNavigate }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', width: '100%' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.65rem' }}>
-              <Logo size={28} />
-              <strong style={{ fontSize: '0.95rem' }}>Surplus Food Donation &amp; NGO Coordination System</strong>
+              <Logo size={32} />
+              <strong style={{ fontSize: '1.12rem', letterSpacing: '-0.02em' }}>FoodCircle</strong>
             </div>
             <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: '32ch' }}>
-              Connecting surplus food with those who need it through real-time coordination, transparent matching, and volunteer tracking.
+              Surplus food donation and NGO coordination system. Connecting surplus food with those who need it through real-time matching and volunteer tracking.
             </p>
           </div>
 

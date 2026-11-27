@@ -1,8 +1,9 @@
 import React from 'react';
 
 /**
- * Premium Vector Logo for "Surplus Food Donation & NGO Coordination System"
- * Combines the food coordination circle, sharing hands / bowl, fresh leaf, and heart accent.
+ * Trendy Modern Vector Logo for "FoodCircle"
+ * Features a sleek geometric circular ribbon intertwining a fresh rescue leaf (emerald)
+ * and sharing food loop (sunset terracotta) with a center community spark.
  */
 export function Logo({ size = 36, showText = false, subtitle = true, className = '' }) {
   return (
@@ -11,7 +12,7 @@ export function Logo({ size = 36, showText = false, subtitle = true, className =
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '0.75rem',
+        gap: '0.65rem',
         textDecoration: 'none',
       }}
     >
@@ -21,107 +22,142 @@ export function Logo({ size = 36, showText = false, subtitle = true, className =
         viewBox="0 0 48 48"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ flexShrink: 0 }}
-        aria-label="Surplus Food Donation & NGO Coordination System Emblem"
+        style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 8px rgba(32, 60, 50, 0.22))' }}
+        aria-label="FoodCircle Logo"
       >
         <defs>
-          <linearGradient id="forestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#2E5A4B" />
-            <stop offset="100%" stopColor="#1B332A" />
+          {/* Deep Forest Tech Canvas Gradient */}
+          <linearGradient id="fcBaseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#1B382E" />
+            <stop offset="100%" stopColor="#0F241C" />
           </linearGradient>
-          <linearGradient id="warmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#E27244" />
-            <stop offset="100%" stopColor="#C45A2C" />
+
+          {/* Fresh Emerald Leaf Arc */}
+          <linearGradient id="fcLeafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#34D399" />
+            <stop offset="50%" stopColor="#10B981" />
+            <stop offset="100%" stopColor="#059669" />
           </linearGradient>
-          <linearGradient id="mintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#E4F0E8" />
-            <stop offset="100%" stopColor="#B8D7C7" />
+
+          {/* Vibrant Sunset Terracotta Food Loop */}
+          <linearGradient id="fcWarmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FB923C" />
+            <stop offset="50%" stopColor="#F97316" />
+            <stop offset="100%" stopColor="#EA580C" />
           </linearGradient>
-          <filter id="subtleGlow" x="-10%" y="-10%" width="120%" height="120%">
-            <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" floodColor="#000000" floodOpacity="0.12" />
+
+          {/* Golden Core Spark */}
+          <linearGradient id="fcSparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FEF3C7" />
+            <stop offset="100%" stopColor="#FDE68A" />
+          </linearGradient>
+
+          {/* Subtle Ambient Glow */}
+          <filter id="fcGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="2.5" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
 
-        {/* Outer Circular Coordination Ring */}
-        <circle cx="24" cy="24" r="23" fill="url(#forestGrad)" />
+        {/* Modern Rounded Squircle Container */}
+        <rect width="48" height="48" rx="14" fill="url(#fcBaseGrad)" />
+        <rect
+          x="0.75"
+          y="0.75"
+          width="46.5"
+          height="46.5"
+          rx="13.25"
+          stroke="rgba(255, 255, 255, 0.12)"
+          strokeWidth="1.5"
+        />
 
-        {/* Circular Coordination Orbit Track (Dashed/Smooth) */}
+        {/* Outer Coordinate Loop Halo (Dotted Orbit) */}
         <circle
           cx="24"
           cy="24"
-          r="19"
-          stroke="url(#mintGrad)"
+          r="17"
+          stroke="#34D399"
           strokeWidth="1.2"
-          strokeDasharray="4 2.5"
-          strokeOpacity="0.45"
+          strokeDasharray="2.5 3.5"
+          strokeOpacity="0.35"
         />
 
-        {/* Coordination Nodes (3 nodes for Donor, NGO, Volunteer) */}
-        <circle cx="24" cy="5" r="2" fill="#E27244" />
-        <circle cx="7.5" cy="33.5" r="1.8" fill="#B8D7C7" />
-        <circle cx="40.5" cy="33.5" r="1.8" fill="#B8D7C7" />
-
-        {/* The Sharing Bowl / Gentle Hands Foundation */}
+        {/* Left Sprouting Leaf Ribbon (Flowing Counter-Clockwise) */}
         <path
-          d="M12 25 C12 34 17 38 24 38 C31 38 36 34 36 25 C31 28 17 28 12 25 Z"
-          fill="url(#warmGrad)"
-          filter="url(#subtleGlow)"
+          d="M24 10 C16 10 11 16 11 23 C11 29 15 34 21 36 C18 32 17 27 18 22 C19 16 23 12 24 10 Z"
+          fill="url(#fcLeafGrad)"
         />
 
-        {/* Sprouting Life & Freshness Leaf (Left) */}
+        {/* Right Food Rescue Bowl & Coordination Arc (Flowing Clockwise) */}
         <path
-          d="M24 24 C17 21 16 13 24 10 C25.5 15 25.5 20 24 24 Z"
-          fill="#D7E5DC"
+          d="M24 38 C32 38 37 32 37 25 C37 19 33 14 27 12 C30 16 31 21 30 26 C29 32 25 36 24 38 Z"
+          fill="url(#fcWarmGrad)"
         />
 
-        {/* Sprouting Compassion & Harvest Leaf (Right) */}
+        {/* Interlocking Smooth Flowing Circle Bridge */}
         <path
-          d="M24 24 C31 21 32 13 24 10 C26 15 25.5 19 24 24 Z"
-          fill="#86B2A0"
+          d="M21 36 C24 37.5 27 36 29 34 C31 32 32 29 32 26"
+          stroke="url(#fcWarmGrad)"
+          strokeWidth="3.2"
+          strokeLinecap="round"
         />
-
-        {/* Leaf Center Stem */}
         <path
-          d="M24 11 L24 25"
-          stroke="#1B332A"
-          strokeWidth="1.2"
+          d="M27 12 C24 10.5 21 12 19 14 C17 16 16 19 16 22"
+          stroke="url(#fcLeafGrad)"
+          strokeWidth="3.2"
           strokeLinecap="round"
         />
 
-        {/* Community Heart / Ember of Care in Center */}
-        <path
-          d="M24 26 C22.8 24.5 20.5 25 20.5 26.8 C20.5 28.5 24 31 24 31 C24 31 27.5 28.5 27.5 26.8 C27.5 25 25.2 24.5 24 26 Z"
-          fill="#FFFFFF"
-        />
+        {/* Center Community Heart & Compassion Node */}
+        <circle cx="24" cy="24" r="3.2" fill="url(#fcSparkGrad)" filter="url(#fcGlow)" />
+
+        {/* Micro Satellite Coordination Dots (Donor, NGO, Volunteer) */}
+        <circle cx="24" cy="6.5" r="1.6" fill="#34D399" />
+        <circle cx="41.5" cy="24" r="1.6" fill="#FB923C" />
+        <circle cx="6.5" cy="24" r="1.6" fill="#FDE68A" />
       </svg>
 
       {showText && (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span
-            className="brand-name"
-            style={{
-              fontFamily: 'var(--font-display, "Fraunces", Georgia, serif)',
-              fontWeight: 700,
-              fontSize: '1.02rem',
-              lineHeight: 1.2,
-              letterSpacing: '-0.01em',
-              color: 'var(--text-primary)',
-            }}
-          >
-            Surplus Food Donation &amp; NGO Coordination System
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-display, "Fraunces", Georgia, serif)',
+                fontWeight: 700,
+                fontSize: '1.28rem',
+                lineHeight: 1.15,
+                letterSpacing: '-0.02em',
+                color: 'var(--text-primary)',
+              }}
+            >
+              Food
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--font-sans, "Inter", sans-serif)',
+                fontWeight: 700,
+                fontSize: '1.28rem',
+                lineHeight: 1.15,
+                letterSpacing: '-0.02em',
+                color: 'var(--color-forest)',
+              }}
+            >
+              Circle
+            </span>
+          </div>
           {subtitle && (
             <span
-              className="brand-sub"
               style={{
-                fontSize: '0.74rem',
+                fontFamily: 'var(--font-sans, "Inter", sans-serif)',
+                fontSize: '0.72rem',
                 color: 'var(--color-saffron, #C8794A)',
                 fontWeight: 600,
-                letterSpacing: '0.02em',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
                 marginTop: '1px',
               }}
             >
-              Connecting Surplus Food With Those Who Need It
+              Food Rescue Network
             </span>
           )}
         </div>

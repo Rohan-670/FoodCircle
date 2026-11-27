@@ -53,8 +53,8 @@ export function LandingPage({ onNavigate }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 0.95fr', gap: '2rem', alignItems: 'center' }}>
           <div>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <Badge tone="forest">Food Rescue</Badge>
-              <Badge tone="mint">Verified Network</Badge>
+              <Badge tone="forest">FoodCircle Platform</Badge>
+              <Badge tone="mint">Verified NGO Network</Badge>
               <Badge tone="terracotta">Live Telematics</Badge>
             </div>
 
@@ -63,7 +63,7 @@ export function LandingPage({ onNavigate }) {
             </h1>
 
             <p className="hero-lead" style={{ fontSize: '1.02rem', maxWidth: '54ch', marginBottom: '1.25rem' }}>
-              A smart platform for coordinating food donations, NGO requirements, volunteers, and delivery tracking.
+              FoodCircle is a smart platform for coordinating surplus food donations, NGO requirements, volunteers, and live delivery tracking.
             </p>
 
             <div className="hero-cta-pills">
@@ -684,7 +684,7 @@ export function LandingPage({ onNavigate }) {
           {[
             {
               q: 'How does the transparent matching score work?',
-              a: 'The system calculates an explainable score based on Distance (30%), Food Category (20%), Quantity (20%), Urgency (15%), and NGO Capacity (15%). Matches are never accepted automatically without confirmation.',
+              a: 'FoodCircle calculates an explainable score based on Distance (30%), Food Category (20%), Quantity (20%), Urgency (15%), and NGO Capacity (15%). Matches are never accepted automatically without confirmation.',
             },
             {
               q: 'How do single-use QR codes verify pickup and delivery?',

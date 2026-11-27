@@ -30,12 +30,12 @@ export function Header({ currentPage, onNavigate }) {
           type="button"
           className="brand-link"
           onClick={() => onNavigate('landing')}
-          title="Surplus Food Donation & NGO Coordination System"
+          title="FoodCircle — Surplus Food Donation & NGO Coordination"
         >
-          <Logo size={36} />
+          <Logo size={38} />
           <span className="brand-text-block">
-            <span className="brand-name">Surplus Food Donation &amp; NGO Coordination System</span>
-            <span className="brand-sub">Connecting Surplus Food With Those Who Need It</span>
+            <span className="brand-name">FoodCircle</span>
+            <span className="brand-sub">Food Rescue Network</span>
           </span>
         </button>
 
