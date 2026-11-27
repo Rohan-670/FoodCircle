@@ -6,10 +6,11 @@ import {
   Select,
   Button,
   Badge,
-  Modal,
 } from '../components/ui';
+import { useAuth } from '../context/AuthContext';
 
 export function SignupPage({ onNavigate }) {
+  const { register } = useAuth();
   const [role, setRole] = useState('DONOR');
   const [form, setForm] = useState({
     fullName: '',
@@ -21,10 +22,9 @@ export function SignupPage({ onNavigate }) {
     address: '',
     serviceArea: '',
     availability: 'AVAILABLE',
-    termsAccepted: true,
   });
   const [errors, setErrors] = useState({});
-  const [previewOpen, setPreviewOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,7 +35,7 @@ export function SignupPage({ onNavigate }) {
     setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const nextErrors = {};
     if (!form.email.includes('@')) nextErrors.email = 'Enter a valid email address.';
@@ -58,7 +58,18 @@ export function SignupPage({ onNavigate }) {
       return;
     }
 
-    setPreviewOpen(true);
+    setLoading(true);
+    try {
+      const user = await register({ ...form, role });
+      const targetRole = user?.role || role;
+      if (targetRole === 'NGO') onNavigate('ngo-dashboard');
+      else if (targetRole === 'VOLUNTEER') onNavigate('volunteer-dashboard');
+      else onNavigate('donor-dashboard');
+    } catch (err) {
+      setErrors({ email: err.message || 'Registration failed.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -96,6 +107,7 @@ export function SignupPage({ onNavigate }) {
                 onChange={handleChange}
                 error={errors.fullName}
                 placeholder="e.g. Ananya Sharma"
+                required
               />
             ) : (
               <div className="form-grid-2">
@@ -107,6 +119,7 @@ export function SignupPage({ onNavigate }) {
                   onChange={handleChange}
                   error={errors.organizationName}
                   placeholder="e.g. Mercy Community Kitchen"
+                  required
                 />
                 <Input
                   id="signup-contact"
@@ -116,6 +129,7 @@ export function SignupPage({ onNavigate }) {
                   onChange={handleChange}
                   error={errors.contactPerson}
                   placeholder="e.g. Rohan Mehta"
+                  required
                 />
               </div>
             )}
@@ -130,6 +144,7 @@ export function SignupPage({ onNavigate }) {
                 onChange={handleChange}
                 error={errors.email}
                 placeholder="name@example.com"
+                required
               />
               <Input
                 id="signup-phone"
@@ -140,6 +155,7 @@ export function SignupPage({ onNavigate }) {
                 onChange={handleChange}
                 error={errors.phone}
                 placeholder="+91 98765 43210"
+                required
               />
             </div>
 
@@ -153,6 +169,7 @@ export function SignupPage({ onNavigate }) {
               error={errors.password}
               hint="Minimum 8 characters."
               placeholder="••••••••"
+              required
             />
 
             {role === 'DONOR' && (
@@ -165,6 +182,7 @@ export function SignupPage({ onNavigate }) {
                   onChange={handleChange}
                   error={errors.organizationName}
                   placeholder="e.g. Saffron Courtyard Kitchen"
+                  required
                 />
                 <Input
                   id="donor-address"
@@ -174,6 +192,7 @@ export function SignupPage({ onNavigate }) {
                   onChange={handleChange}
                   error={errors.address}
                   placeholder="42 Residency Road, Central Ward"
+                  required
                 />
               </>
             )}
@@ -188,6 +207,7 @@ export function SignupPage({ onNavigate }) {
                   onChange={handleChange}
                   error={errors.serviceArea}
                   placeholder="Central & South Wards"
+                  required
                 />
                 <Input
                   id="ngo-address"
@@ -197,6 +217,7 @@ export function SignupPage({ onNavigate }) {
                   onChange={handleChange}
                   error={errors.address}
                   placeholder="15 Hope Shelter Lane, Central Ward"
+                  required
                 />
               </>
             )}
@@ -211,6 +232,7 @@ export function SignupPage({ onNavigate }) {
                   onChange={handleChange}
                   error={errors.serviceArea}
                   placeholder="Central Ward"
+                  required
                 />
                 <Select
                   id="vol-avail"
@@ -226,8 +248,8 @@ export function SignupPage({ onNavigate }) {
             )}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <Button type="submit" size="lg">
-                Create Account
+              <Button type="submit" size="lg" disabled={loading}>
+                {loading ? 'Creating Account...' : 'Complete Registration'}
               </Button>
               <Button
                 variant="ghost"
@@ -239,19 +261,6 @@ export function SignupPage({ onNavigate }) {
           </form>
         </Card>
       </div>
-
-      <Modal
-        isOpen={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-        title="Account Setup Complete"
-        footer={
-          <Button onClick={() => { setPreviewOpen(false); onNavigate('login'); }}>Proceed to Sign In</Button>
-        }
-      >
-        <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-          Registration successful for role: <strong>{role}</strong> ({form.email}).
-        </p>
-      </Modal>
     </PageContainer>
   );
 }

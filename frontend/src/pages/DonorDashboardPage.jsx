@@ -1,29 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { Card, Badge, Button, Input, Select, Modal } from '../components/ui';
-import { MOCK_DONATIONS } from '../data/mockData';
+import {
+  getStoredDonations,
+  addStoredDonation,
+  getStoredRequests,
+  updateStoredRequest,
+  updateStoredDonationStatus,
+} from '../data/store';
 
 export function DonorDashboardPage({ onNavigate }) {
   const [section, setSection] = useState('overview');
-  const [donations, setDonations] = useState(MOCK_DONATIONS.slice(0, 3));
-  const [requests, setRequests] = useState([
-    {
-      id: 'req-1',
-      batch: 'Vegetable Pulao & Lentil Curry',
-      ngoName: 'Mercy Community Kitchen',
-      servings: 65,
-      sla: '~25 mins',
-      status: 'PENDING',
-    },
-    {
-      id: 'req-2',
-      batch: 'Artisan Loaves',
-      ngoName: 'Annapurna Relief Food Bank',
-      servings: 40,
-      sla: '~35 mins',
-      status: 'PENDING',
-    },
-  ]);
+  const [donations, setDonations] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [newBatch, setNewBatch] = useState({
@@ -33,10 +22,15 @@ export function DonorDashboardPage({ onNavigate }) {
     quantity: '',
     unit: 'servings',
     hoursRemaining: '4',
-    pickupAddress: '42 Residency Road, Central Ward',
+    pickupAddress: '42 Residency Road, Central Ward, Bengaluru',
     holdingTemp: '65°C Hot Holding',
-    storageRequirements: 'Store in insulated carriers',
+    storageRequirements: 'Store in insulated containers',
   });
+
+  useEffect(() => {
+    setDonations(getStoredDonations());
+    setRequests(getStoredRequests());
+  }, []);
 
   const sidebarItems = [
     { id: 'overview', label: 'Active Listings', count: donations.length },
@@ -46,9 +40,9 @@ export function DonorDashboardPage({ onNavigate }) {
 
   const metrics = [
     { label: 'Active Listings', value: String(donations.length), note: 'Available or requested' },
-    { label: 'Pending Requests', value: String(requests.filter((r) => r.status === 'PENDING').length), note: 'Awaiting your approval' },
-    { label: 'Accepted Batches', value: String(donations.filter((d) => d.status === 'ACCEPTED').length + 1), note: 'Ready for courier' },
-    { label: 'Meals Rescued', value: '820', note: 'Cumulative to date' },
+    { label: 'Pending Requests', value: String(requests.filter((r) => r.status === 'PENDING').length), note: 'Awaiting your decision' },
+    { label: 'Accepted Batches', value: String(donations.filter((d) => d.status === 'ACCEPTED').length), note: 'Ready for courier' },
+    { label: 'Meals Donated', value: '820', note: 'Cumulative to date' },
   ];
 
   const handleCreateDonation = (e) => {
@@ -66,13 +60,19 @@ export function DonorDashboardPage({ onNavigate }) {
       expiresAt: `In ${newBatch.hoursRemaining} hours`,
       pickupAddress: newBatch.pickupAddress,
       holdingTemp: newBatch.holdingTemp,
+      donorName: 'Saffron Courtyard Banquets',
       status: 'AVAILABLE',
+      distanceKm: 1.5,
+      slaMinutes: 30,
+      packagingInfo: 'Sealed containers',
+      storageRequirements: newBatch.storageRequirements,
       urgency: Number(newBatch.hoursRemaining) <= 4 ? 'CRITICAL' : 'HIGH',
     };
 
-    setDonations([created, ...donations]);
+    const updated = addStoredDonation(created);
+    setDonations(updated);
     setShowModal(false);
-    setFeedback(`Batch "${created.title}" published successfully!`);
+    setFeedback(`Batch "${created.title}" successfully published to active surplus network.`);
     setTimeout(() => setFeedback(''), 4000);
     setNewBatch({
       title: '',
@@ -81,22 +81,29 @@ export function DonorDashboardPage({ onNavigate }) {
       quantity: '',
       unit: 'servings',
       hoursRemaining: '4',
-      pickupAddress: '42 Residency Road, Central Ward',
+      pickupAddress: '42 Residency Road, Central Ward, Bengaluru',
       holdingTemp: '65°C Hot Holding',
-      storageRequirements: 'Store in insulated carriers',
+      storageRequirements: 'Store in insulated containers',
     });
   };
 
-  const handleAcceptRequest = (requestId) => {
-    setRequests(
-      requests.map((r) => (r.id === requestId ? { ...r, status: 'ACCEPTED' } : r))
-    );
-    setFeedback('Request accepted! Volunteer courier notification triggered.');
+  const handleAcceptRequest = (requestId, batchTitle) => {
+    const updatedRequests = updateStoredRequest(requestId, 'ACCEPTED');
+    setRequests(updatedRequests);
+
+    const matched = donations.find((d) => d.title.includes(batchTitle) || batchTitle.includes(d.title));
+    if (matched) {
+      const updatedDonations = updateStoredDonationStatus(matched.id, 'ACCEPTED');
+      setDonations(updatedDonations);
+    }
+
+    setFeedback('Request accepted. Volunteer dispatch has been notified for pickup.');
     setTimeout(() => setFeedback(''), 4000);
   };
 
   const handleDeclineRequest = (requestId) => {
-    setRequests(requests.filter((r) => r.id !== requestId));
+    const updated = updateStoredRequest(requestId, 'REJECTED');
+    setRequests(updated);
     setFeedback('Request declined.');
     setTimeout(() => setFeedback(''), 3000);
   };
@@ -104,8 +111,8 @@ export function DonorDashboardPage({ onNavigate }) {
   return (
     <DashboardLayout
       roleLabel="Donor"
-      title="Saffron Courtyard Kitchen"
-      subtitle="Manage your surplus food batches and respond to NGO requests."
+      title="Saffron Courtyard Banquets"
+      subtitle="Manage your active food batches and respond to partner NGO requests."
       sidebarItems={sidebarItems}
       activeSection={section}
       onSectionChange={setSection}
@@ -126,13 +133,13 @@ export function DonorDashboardPage({ onNavigate }) {
       {section === 'overview' && (
         <Card
           title="Active Food Batches"
-          subtitle="Surplus batches currently available or awaiting pickup."
+          subtitle="Batches available for immediate charity claim or dispatch."
         >
           <div className="table-wrap">
             <table className="editorial-table">
               <thead>
                 <tr>
-                  <th>Batch</th>
+                  <th>Food Batch</th>
                   <th>Quantity</th>
                   <th>Temperature</th>
                   <th>Expires In</th>
@@ -191,50 +198,38 @@ export function DonorDashboardPage({ onNavigate }) {
       {section === 'requests' && (
         <Card
           title="Incoming Allocation Requests"
-          subtitle="NGOs requesting to claim your available batches."
+          subtitle="Verified charities requesting surplus allocations."
         >
-          {requests.length === 0 ? (
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>No pending requests.</p>
+          {requests.filter((r) => r.status === 'PENDING').length === 0 ? (
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>No pending requests at this time.</p>
           ) : (
             <div className="table-wrap">
               <table className="editorial-table">
                 <thead>
                   <tr>
                     <th>Batch</th>
-                    <th>Requesting NGO</th>
+                    <th>Requesting Charity</th>
                     <th>Servings</th>
                     <th>ETA</th>
-                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {requests.map((r) => (
+                  {requests.filter((r) => r.status === 'PENDING').map((r) => (
                     <tr key={r.id}>
                       <td><strong>{r.batch}</strong></td>
                       <td>{r.ngoName}</td>
                       <td>{r.servings}</td>
                       <td>{r.sla}</td>
                       <td>
-                        <Badge tone={r.status === 'ACCEPTED' ? 'forest' : 'sage'}>
-                          {r.status}
-                        </Badge>
-                      </td>
-                      <td>
-                        {r.status === 'PENDING' ? (
-                          <div style={{ display: 'flex', gap: '0.4rem' }}>
-                            <Button size="sm" onClick={() => handleAcceptRequest(r.id)}>
-                              Accept
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleDeclineRequest(r.id)}>
-                              Decline
-                            </Button>
-                          </div>
-                        ) : (
-                          <span style={{ fontSize: '0.8rem', color: 'var(--color-forest)', fontWeight: 600 }}>
-                            Assigned to courier
-                          </span>
-                        )}
+                        <div style={{ display: 'flex', gap: '0.4rem' }}>
+                          <Button size="sm" onClick={() => handleAcceptRequest(r.id, r.batch)}>
+                            Accept
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDeclineRequest(r.id)}>
+                            Decline
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -248,12 +243,12 @@ export function DonorDashboardPage({ onNavigate }) {
       {section === 'history' && (
         <Card title="Completed Deliveries" badge={<Badge tone="forest">14 Completed</Badge>}>
           <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-            14 surplus batches successfully delivered to partner shelters via verified QR handoffs.
+            14 surplus food batches successfully delivered and verified with single-use QR tokens.
           </p>
         </Card>
       )}
 
-      {/* Reactive Post New Donation Modal */}
+      {/* Modal to Post New Surplus Batch */}
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
@@ -268,10 +263,10 @@ export function DonorDashboardPage({ onNavigate }) {
         <form onSubmit={handleCreateDonation} className="form-stack">
           <Input
             id="batch-title"
-            label="Food Title"
+            label="Food Title / Description"
             value={newBatch.title}
             onChange={(e) => setNewBatch({ ...newBatch, title: e.target.value })}
-            placeholder="e.g. Steamed Rice & Dal Trays"
+            placeholder="e.g. Fresh Steamed Rice & Dal Trays"
             required
           />
 

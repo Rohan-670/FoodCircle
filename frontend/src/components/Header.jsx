@@ -1,18 +1,25 @@
 import React from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { Button } from './ui';
 
 const NAV_ITEMS = [
   { id: 'landing', label: 'Home' },
   { id: 'listings', label: 'Surplus Catalog' },
-  { id: 'donor-dashboard', label: 'Donor' },
-  { id: 'ngo-dashboard', label: 'NGO' },
+  { id: 'donor-dashboard', label: 'Donate Food' },
+  { id: 'ngo-dashboard', label: 'NGO Portal' },
   { id: 'volunteer-dashboard', label: 'Volunteer' },
-  { id: 'admin-dashboard', label: 'Admin' },
+  { id: 'admin-dashboard', label: 'Governance' },
 ];
 
 export function Header({ currentPage, onNavigate }) {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
+
+  const handleSignOut = () => {
+    logout();
+    onNavigate('landing');
+  };
 
   return (
     <header className="site-header">
@@ -46,41 +53,6 @@ export function Header({ currentPage, onNavigate }) {
         </nav>
 
         <div className="header-actions">
-          {/* Quick interactive role switcher */}
-          <div className="role-quick-switcher" title="Switch role view">
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '0 0.25rem' }}>
-              View:
-            </span>
-            <button
-              type="button"
-              className={`role-pill-btn ${currentPage === 'donor-dashboard' ? 'is-active' : ''}`}
-              onClick={() => onNavigate('donor-dashboard')}
-            >
-              Donor
-            </button>
-            <button
-              type="button"
-              className={`role-pill-btn ${currentPage === 'ngo-dashboard' ? 'is-active' : ''}`}
-              onClick={() => onNavigate('ngo-dashboard')}
-            >
-              NGO
-            </button>
-            <button
-              type="button"
-              className={`role-pill-btn ${currentPage === 'volunteer-dashboard' ? 'is-active' : ''}`}
-              onClick={() => onNavigate('volunteer-dashboard')}
-            >
-              Volunteer
-            </button>
-            <button
-              type="button"
-              className={`role-pill-btn ${currentPage === 'admin-dashboard' ? 'is-active' : ''}`}
-              onClick={() => onNavigate('admin-dashboard')}
-            >
-              Admin
-            </button>
-          </div>
-
           <Button
             variant="ghost"
             size="sm"
@@ -90,19 +62,51 @@ export function Header({ currentPage, onNavigate }) {
             {theme === 'light' ? 'Dark' : 'Light'}
           </Button>
 
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onNavigate('login')}
-          >
-            Sign In
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => onNavigate('signup')}
-          >
-            Register
-          </Button>
+          {user ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <button
+                type="button"
+                onClick={() => onNavigate('settings')}
+                style={{
+                  background: 'var(--bg-muted)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 'var(--radius-pill)',
+                  padding: '0.3rem 0.75rem',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                }}
+              >
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--color-forest)' }}></span>
+                <span>{user.organizationName || user.fullName || 'My Account'}</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>({user.role})</span>
+              </button>
+
+              <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                Sign Out
+              </Button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => onNavigate('login')}
+              >
+                Sign In
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => onNavigate('signup')}
+              >
+                Register
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </header>

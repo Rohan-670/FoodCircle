@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   PageContainer,
   Card,
@@ -7,16 +7,24 @@ import {
   Input,
   Select,
 } from '../components/ui';
-import { MOCK_DONATIONS } from '../data/mockData';
+import { getStoredDonations } from '../data/store';
 
 export function DonationListingPage({ onNavigate }) {
+  const [donations, setDonations] = useState(getStoredDonations());
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('ALL');
   const [dietary, setDietary] = useState('ALL');
   const [urgency, setUrgency] = useState('ALL');
 
+  useEffect(() => {
+    setDonations(getStoredDonations());
+    const handleStorage = () => setDonations(getStoredDonations());
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   const filtered = useMemo(() => {
-    return MOCK_DONATIONS.filter((d) => {
+    return donations.filter((d) => {
       if (category !== 'ALL' && d.category !== category) return false;
       if (dietary !== 'ALL' && d.dietary !== dietary) return false;
       if (urgency !== 'ALL' && d.urgency !== urgency) return false;
@@ -30,7 +38,7 @@ export function DonationListingPage({ onNavigate }) {
       }
       return true;
     });
-  }, [search, category, dietary, urgency]);
+  }, [donations, search, category, dietary, urgency]);
 
   return (
     <PageContainer

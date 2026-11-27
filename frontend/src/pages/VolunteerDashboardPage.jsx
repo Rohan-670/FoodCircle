@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { Card, Badge, Button, Input } from '../components/ui';
-import { MOCK_VOLUNTEER_TASKS } from '../data/mockData';
+import { getStoredDeliveries, updateStoredDelivery } from '../data/store';
 
 const WORKFLOW_STEPS = [
   'ACCEPTED',
@@ -13,25 +13,44 @@ const WORKFLOW_STEPS = [
 
 export function VolunteerDashboardPage() {
   const [section, setSection] = useState('assigned');
-  const [activeTask, setActiveTask] = useState(MOCK_VOLUNTEER_TASKS[0]);
-  const [availableTasks, setAvailableTasks] = useState([MOCK_VOLUNTEER_TASKS[1]]);
-  const [timelineStep, setTimelineStep] = useState(1); // 1 = VOLUNTEER_ASSIGNED
+  const [deliveries, setDeliveries] = useState([]);
+  const [activeTask, setActiveTask] = useState(null);
+  const [timelineStep, setTimelineStep] = useState(1);
   const [gpsConsent, setGpsConsent] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [qrInput, setQrInput] = useState('');
 
+  useEffect(() => {
+    const list = getStoredDeliveries();
+    setDeliveries(list);
+    const assigned = list.find((t) => t.status !== 'PENDING_VOLUNTEER' && t.status !== 'DELIVERY_CONFIRMED') || list[0];
+    setActiveTask(assigned);
+    setTimelineStep(assigned?.timelineStep ?? 1);
+  }, []);
+
+  const availableTasks = deliveries.filter((t) => t.status === 'PENDING_VOLUNTEER');
+
   const handleAdvanceStep = () => {
-    if (timelineStep < WORKFLOW_STEPS.length - 1) {
-      const nextStep = timelineStep + 1;
-      setTimelineStep(nextStep);
-      setActiveTask({
-        ...activeTask,
-        status: WORKFLOW_STEPS[nextStep],
-        timelineStep: nextStep,
-      });
-      setFeedback(`Status updated to: ${WORKFLOW_STEPS[nextStep]}`);
-      setTimeout(() => setFeedback(''), 4000);
-    }
+    if (!activeTask || timelineStep >= WORKFLOW_STEPS.length - 1) return;
+
+    const nextStep = timelineStep + 1;
+    setTimelineStep(nextStep);
+    const nextStatus = WORKFLOW_STEPS[nextStep];
+
+    const updatedTask = {
+      ...activeTask,
+      status: nextStatus,
+      timelineStep: nextStep,
+    };
+    setActiveTask(updatedTask);
+    const updatedList = updateStoredDelivery(activeTask.id, {
+      status: nextStatus,
+      timelineStep: nextStep,
+    });
+    setDeliveries(updatedList);
+
+    setFeedback(`Status updated to: ${nextStatus}`);
+    setTimeout(() => setFeedback(''), 4000);
   };
 
   const handleVerifyQr = () => {
@@ -43,19 +62,23 @@ export function VolunteerDashboardPage() {
     ) {
       handleAdvanceStep();
       setQrInput('');
-      setFeedback('Single-use QR token verified! Step completed.');
+      setFeedback('Single-use QR token verified successfully. Next step unlocked.');
     } else {
-      setFeedback('Invalid QR token. Please enter a valid 256-bit token.');
+      setFeedback('Token mismatch. Please verify the code.');
     }
     setTimeout(() => setFeedback(''), 4000);
   };
 
   const handleAcceptTask = (task) => {
-    setAvailableTasks(availableTasks.filter((t) => t.id !== task.id));
+    const updatedList = updateStoredDelivery(task.id, {
+      status: 'VOLUNTEER_ASSIGNED',
+      timelineStep: 1,
+    });
+    setDeliveries(updatedList);
     setActiveTask({ ...task, status: 'VOLUNTEER_ASSIGNED', timelineStep: 1 });
     setTimelineStep(1);
     setSection('assigned');
-    setFeedback(`Task "${task.title}" accepted! Ready for pickup.`);
+    setFeedback(`Task "${task.title}" accepted! You are now assigned to pickup.`);
     setTimeout(() => setFeedback(''), 4000);
   };
 
@@ -66,10 +89,10 @@ export function VolunteerDashboardPage() {
   ];
 
   const metrics = [
-    { label: 'Courier Status', value: 'Online', note: 'Central Ward' },
-    { label: 'Active Task', value: activeTask ? activeTask.status : 'None', note: 'Current route' },
+    { label: 'Courier Status', value: 'Active', note: 'Central Ward' },
+    { label: 'Current Task', value: activeTask ? activeTask.status : 'None', note: 'Dispatch status' },
     { label: 'Available in Corridor', value: String(availableTasks.length), note: 'Near you' },
-    { label: 'Completed Deliveries', value: '9', note: '100% QR confirmed' },
+    { label: 'Completed Deliveries', value: '9', note: '100% verified handoffs' },
   ];
 
   return (
@@ -104,7 +127,7 @@ export function VolunteerDashboardPage() {
             {/* Visual Step Timeline */}
             <div className="info-strip" style={{ marginBottom: '1.25rem' }}>
               <div style={{ fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.45rem' }}>
-                Delivery Workflow Status
+                Delivery Workflow Progress
               </div>
               <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                 {WORKFLOW_STEPS.map((step, idx) => {
@@ -122,27 +145,27 @@ export function VolunteerDashboardPage() {
               </div>
             </div>
 
-            {/* Reactive Step Progression Actions */}
+            {/* Step Progression Actions */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
               <div style={{ backgroundColor: 'var(--bg-muted)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                <strong style={{ fontSize: '0.86rem' }}>Advance Delivery Step</strong>
+                <strong style={{ fontSize: '0.86rem' }}>Advance Workflow Step</strong>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.35rem 0 0.75rem' }}>
-                  Progress the delivery state as you execute the pickup and handover.
+                  Update the live handover state as you complete pickup and delivery.
                 </p>
                 {timelineStep < WORKFLOW_STEPS.length - 1 ? (
                   <Button size="sm" onClick={handleAdvanceStep}>
                     Advance to: {WORKFLOW_STEPS[timelineStep + 1]} →
                   </Button>
                 ) : (
-                  <Badge tone="mint">✓ Delivery Complete</Badge>
+                  <Badge tone="mint">✓ Delivery Fully Completed</Badge>
                 )}
               </div>
 
-              {/* QR Code Validation Simulator */}
+              {/* QR Code Validation */}
               <div style={{ backgroundColor: 'var(--bg-muted)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                <strong style={{ fontSize: '0.86rem' }}>Verify Single-Use QR Token</strong>
+                <strong style={{ fontSize: '0.86rem' }}>Single-Use QR Token Entry</strong>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.35rem 0 0.5rem' }}>
-                  Scan or enter the single-use token at handoff.
+                  Scan or enter the single-use token provided at handoff.
                 </p>
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                   <Input
@@ -156,21 +179,21 @@ export function VolunteerDashboardPage() {
               </div>
             </div>
 
-            {/* GPS Sharing Toggle */}
+            {/* GPS Toggle */}
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <Button
                 variant={gpsConsent ? 'primary' : 'secondary'}
                 onClick={() => {
                   setGpsConsent(!gpsConsent);
-                  setFeedback(gpsConsent ? 'GPS location sharing paused.' : 'Live GPS location sharing active!');
+                  setFeedback(gpsConsent ? 'GPS location sharing paused.' : 'Live location broadcast active.');
                   setTimeout(() => setFeedback(''), 3000);
                 }}
               >
-                {gpsConsent ? 'Stop GPS Sharing' : 'Share Live Location'}
+                {gpsConsent ? 'Stop Location Sharing' : 'Share Live Location'}
               </Button>
               <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
                 {gpsConsent ? (
-                  <strong style={{ color: 'var(--color-forest)' }}>● Broadcasting Live Location (Socket.IO)</strong>
+                  <strong style={{ color: 'var(--color-forest)' }}>● Broadcasting Live Location to Donor &amp; NGO</strong>
                 ) : (
                   'GPS Sharing Paused'
                 )}
@@ -181,7 +204,7 @@ export function VolunteerDashboardPage() {
       )}
 
       {section === 'available' && (
-        <Card title="Available Tasks in Corridor" subtitle="Open delivery tasks ready for volunteer pickup.">
+        <Card title="Available Tasks in Corridor" subtitle="Unassigned food batches ready for courier pickup.">
           {availableTasks.length === 0 ? (
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>No other open tasks in your area right now.</p>
           ) : (
@@ -205,7 +228,7 @@ export function VolunteerDashboardPage() {
                       <td>{t.distanceKm} km</td>
                       <td>
                         <Button size="sm" onClick={() => handleAcceptTask(t)}>
-                          Accept Task
+                          Accept Delivery
                         </Button>
                       </td>
                     </tr>
@@ -220,7 +243,7 @@ export function VolunteerDashboardPage() {
       {section === 'history' && (
         <Card title="Completed Deliveries" badge={<Badge tone="forest">9 Completed</Badge>}>
           <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-            All past 9 deliveries were completed on time and verified with single-use QR tokens.
+            All 9 completed deliveries verified with single-use cryptographic tokens.
           </p>
         </Card>
       )}

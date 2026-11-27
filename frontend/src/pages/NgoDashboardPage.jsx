@@ -1,40 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { Card, Badge, Button } from '../components/ui';
 import { MOCK_NGO_RECOMMENDATIONS } from '../data/mockData';
+import {
+  getStoredDonations,
+  addStoredRequest,
+  getStoredRequests,
+  updateStoredDonationStatus,
+} from '../data/store';
 
 export function NgoDashboardPage({ onNavigate }) {
   const [section, setSection] = useState('recommended');
   const [recommendations, setRecommendations] = useState(MOCK_NGO_RECOMMENDATIONS);
-  const [requestedIds, setRequestedIds] = useState(new Set());
+  const [myRequests, setMyRequests] = useState([]);
   const [feedback, setFeedback] = useState('');
 
-  const handleRequestBatch = (recId, title) => {
-    const next = new Set(requestedIds);
-    next.add(recId);
-    setRequestedIds(next);
-    setFeedback(`Allocation request submitted for "${title}"!`);
-    setTimeout(() => setFeedback(''), 4000);
+  useEffect(() => {
+    setMyRequests(getStoredRequests());
+  }, []);
+
+  const handleRequestBatch = (rec) => {
+    const newReq = {
+      id: `req-${Date.now()}`,
+      batch: rec.donation.title,
+      ngoName: 'Mercy Community Kitchen & Shelter',
+      servings: rec.donation.quantity,
+      sla: `~${rec.donation.slaMinutes || 30} mins`,
+      status: 'PENDING',
+    };
+
+    const updatedRequests = addStoredRequest(newReq);
+    setMyRequests(updatedRequests);
+    updateStoredDonationStatus(rec.donation.id, 'REQUESTED');
+
+    setFeedback(`Allocation request submitted for "${rec.donation.title}". Waiting for kitchen confirmation.`);
+    setTimeout(() => setFeedback(''), 4500);
   };
 
   const sidebarItems = [
     { id: 'recommended', label: 'Matched Batches', count: recommendations.length },
-    { id: 'accepted', label: 'Accepted Batches', count: 1 + requestedIds.size },
+    { id: 'accepted', label: 'My Requests', count: myRequests.length },
     { id: 'deliveries', label: 'Incoming Deliveries', count: 1 },
   ];
 
   const metrics = [
-    { label: 'NGO Status', value: 'Verified', note: 'Central Ward Hub' },
+    { label: 'NGO Status', value: 'Verified', note: 'Central Ward Facility' },
     { label: 'Storage Buffer', value: '1,400 kg', note: 'Available capacity' },
-    { label: 'Suitable Matches', value: String(recommendations.length), note: 'Score ≥ 75/100' },
-    { label: 'Daily Goal', value: '650 meals', note: 'Shelter targets' },
+    { label: 'Matched Batches', value: String(recommendations.length), note: 'Score ≥ 75/100' },
+    { label: 'Daily Target', value: '650 meals', note: 'Shelter community' },
   ];
 
   return (
     <DashboardLayout
       roleLabel="NGO"
-      title="Mercy Community Kitchen"
-      subtitle="Review algorithmic donation recommendations and manage incoming deliveries."
+      title="Mercy Community Kitchen &amp; Shelter"
+      subtitle="Review algorithmic donation recommendations and manage active allocations."
       sidebarItems={sidebarItems}
       activeSection={section}
       onSectionChange={setSection}
@@ -55,7 +75,7 @@ export function NgoDashboardPage({ onNavigate }) {
       {section === 'recommended' && (
         <div className="form-stack">
           {recommendations.map((rec) => {
-            const isRequested = requestedIds.has(rec.id);
+            const hasRequested = myRequests.some((r) => r.batch === rec.donation.title);
             return (
               <Card
                 key={rec.id}
@@ -77,10 +97,10 @@ export function NgoDashboardPage({ onNavigate }) {
                       </Button>
                       <Button
                         size="sm"
-                        disabled={isRequested}
-                        onClick={() => handleRequestBatch(rec.id, rec.donation.title)}
+                        disabled={hasRequested}
+                        onClick={() => handleRequestBatch(rec)}
                       >
-                        {isRequested ? '✓ Request Sent' : 'Request Batch'}
+                        {hasRequested ? '✓ Request Submitted' : 'Request Allocation'}
                       </Button>
                     </div>
                   </div>
@@ -108,28 +128,45 @@ export function NgoDashboardPage({ onNavigate }) {
       )}
 
       {section === 'accepted' && (
-        <Card title="Accepted Batches" badge={<Badge tone="mint">Ready for Pickup</Badge>}>
-          <div style={{ display: 'grid', gap: '0.75rem', fontSize: '0.88rem' }}>
-            <div className="info-strip">
-              <strong>Packaged UHT Milk &amp; Yogurt Cups (80 packs)</strong> — Metro Cold Chain Express
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                Assigned to Volunteer Charlie Verma • Arriving in ~11 mins
-              </div>
+        <Card title="My Allocation Requests" subtitle="Track your requested and accepted food batches.">
+          {myRequests.length === 0 ? (
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>No active requests.</p>
+          ) : (
+            <div className="table-wrap">
+              <table className="editorial-table">
+                <thead>
+                  <tr>
+                    <th>Batch</th>
+                    <th>Servings</th>
+                    <th>Estimated Arrival</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {myRequests.map((r) => (
+                    <tr key={r.id}>
+                      <td><strong>{r.batch}</strong></td>
+                      <td>{r.servings}</td>
+                      <td>{r.sla}</td>
+                      <td>
+                        <Badge tone={r.status === 'ACCEPTED' ? 'forest' : 'mint'}>
+                          {r.status}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            {Array.from(requestedIds).map((id) => (
-              <div key={id} className="info-strip" style={{ borderLeft: '3px solid var(--color-forest)' }}>
-                <strong>Allocation request pending donor confirmation</strong>
-              </div>
-            ))}
-          </div>
+          )}
         </Card>
       )}
 
       {section === 'deliveries' && (
-        <Card title="Live Delivery Status" badge={<Badge tone="terracotta">In Transit</Badge>}>
+        <Card title="Live Inbound Delivery" badge={<Badge tone="terracotta">In Transit</Badge>}>
           <div style={{ fontSize: '0.88rem', display: 'grid', gap: '0.65rem' }}>
             <p style={{ color: 'var(--text-secondary)' }}>
-              Courier Charlie Verma is en route with thermal carriers.
+              Courier Charlie Verma is currently en route with thermal food carriers.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
               <Button

@@ -1,24 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageContainer, Card, Badge, Button } from '../components/ui';
 import {
-  MOCK_DONATIONS,
   MOCK_METRO_HUBS,
   MOCK_VERIFIED_FOOD_BANKS,
   MOCK_IMPACT_METRICS,
 } from '../data/mockData';
+import { getStoredDonations } from '../data/store';
 
 export function LandingPage({ onNavigate }) {
+  const [donations, setDonations] = useState(getStoredDonations());
   const [selectedHub, setSelectedHub] = useState('blr-central');
   const [selectedRadius, setSelectedRadius] = useState('5 km');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [expandedFaq, setExpandedFaq] = useState(null);
 
-  const featured = MOCK_DONATIONS[0];
+  useEffect(() => {
+    setDonations(getStoredDonations());
+    const handleStorage = () => setDonations(getStoredDonations());
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
-  const filteredSurplus = MOCK_DONATIONS.filter((d) => {
+  const featured = donations[0] || {
+    id: 'd-fallback',
+    title: 'Surplus Prepared Meals',
+    donorName: 'Central Kitchen',
+    pickupAddress: 'Koramangala, Bengaluru',
+    quantity: 100,
+    unit: 'meals',
+    dietary: 'Pure Veg',
+    urgency: 'HIGH',
+    hoursRemaining: 4,
+    holdingTemp: '68°C',
+    slaMinutes: 45,
+  };
+
+  const filteredSurplus = donations.filter((d) => {
     if (selectedCategory !== 'ALL' && d.category !== selectedCategory) return false;
-    if (selectedRadius === '5 km' && d.distanceKm > 5) return false;
-    if (selectedRadius === '10 km' && d.distanceKm > 10) return false;
+    if (selectedRadius === '5 km' && (d.distanceKm || 0) > 5) return false;
+    if (selectedRadius === '10 km' && (d.distanceKm || 0) > 10) return false;
     return true;
   });
 

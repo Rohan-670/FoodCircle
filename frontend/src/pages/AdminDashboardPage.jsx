@@ -1,57 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { Card, Badge, Button } from '../components/ui';
 import {
-  MOCK_ADMIN_VERIFICATIONS,
-  MOCK_AUDIT_LOGS,
-  MOCK_DONATIONS,
-} from '../data/mockData';
+  getStoredVerifications,
+  updateStoredVerification,
+  getStoredAuditLogs,
+  addStoredAuditLog,
+  getStoredDonations,
+} from '../data/store';
 
 export function AdminDashboardPage() {
   const [section, setSection] = useState('verifications');
-  const [verifications, setVerifications] = useState(MOCK_ADMIN_VERIFICATIONS);
-  const [auditLogs, setAuditLogs] = useState(MOCK_AUDIT_LOGS);
+  const [verifications, setVerifications] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [donations, setDonations] = useState([]);
   const [feedback, setFeedback] = useState('');
 
+  useEffect(() => {
+    setVerifications(getStoredVerifications());
+    setAuditLogs(getStoredAuditLogs());
+    setDonations(getStoredDonations());
+  }, []);
+
+  const pendingVerifications = verifications.filter((v) => v.status === 'PENDING');
+
   const handleVerifyOrg = (id, orgName) => {
-    setVerifications(verifications.filter((v) => v.id !== id));
-    const newLog = {
-      id: `aud-${Date.now()}`,
-      action: 'ORGANIZATION_VERIFIED',
-      target: orgName,
-      admin: 'System Administrator',
-      timestamp: 'Just now',
-    };
-    setAuditLogs([newLog, ...auditLogs]);
-    setFeedback(`"${orgName}" successfully verified & activated!`);
+    const updatedVerifications = updateStoredVerification(id, 'VERIFIED');
+    setVerifications(updatedVerifications);
+
+    const updatedLogs = addStoredAuditLog('ORGANIZATION_VERIFIED', orgName);
+    setAuditLogs(updatedLogs);
+
+    setFeedback(`Organization "${orgName}" verified and approved for full operations.`);
     setTimeout(() => setFeedback(''), 4000);
   };
 
   const handleRejectOrg = (id, orgName) => {
-    setVerifications(verifications.filter((v) => v.id !== id));
-    const newLog = {
-      id: `aud-${Date.now()}`,
-      action: 'ORGANIZATION_REJECTED',
-      target: orgName,
-      admin: 'System Administrator',
-      timestamp: 'Just now',
-    };
-    setAuditLogs([newLog, ...auditLogs]);
-    setFeedback(`"${orgName}" application rejected.`);
+    const updatedVerifications = updateStoredVerification(id, 'REJECTED');
+    setVerifications(updatedVerifications);
+
+    const updatedLogs = addStoredAuditLog('ORGANIZATION_REJECTED', orgName);
+    setAuditLogs(updatedLogs);
+
+    setFeedback(`Organization "${orgName}" application rejected.`);
     setTimeout(() => setFeedback(''), 4000);
   };
 
   const sidebarItems = [
-    { id: 'verifications', label: 'Verification Queue', count: verifications.length },
-    { id: 'donations', label: 'Active Network Batches', count: MOCK_DONATIONS.length },
+    { id: 'verifications', label: 'Verification Queue', count: pendingVerifications.length },
+    { id: 'donations', label: 'Network Food Batches', count: donations.length },
     { id: 'audit', label: 'Audit Trail', count: auditLogs.length },
   ];
 
   const metrics = [
-    { label: 'Registered Entities', value: '54', note: 'Donors, NGOs, Volunteers' },
+    { label: 'Registered Entities', value: '54', note: 'Donors, NGOs, Couriers' },
     { label: 'Active Volume', value: '220 kg', note: 'Across all active corridors' },
-    { label: 'Active Deliveries', value: '3', note: 'QR-tracked couriers' },
-    { label: 'Pending Verification', value: String(verifications.length), note: 'Review required' },
+    { label: 'Active Deliveries', value: '3', note: 'Live QR tracking' },
+    { label: 'Pending Queue', value: String(pendingVerifications.length), note: 'Review required' },
   ];
 
   return (
@@ -74,15 +79,15 @@ export function AdminDashboardPage() {
       {section === 'verifications' && (
         <Card
           title="Organization Verification Queue"
-          subtitle="Review registration details before granting platform access."
+          subtitle="Review documentation and approve valid charity and donor accounts."
         >
-          {verifications.length === 0 ? (
+          {pendingVerifications.length === 0 ? (
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              No pending verification requests. All organizations reviewed!
+              No pending verification requests. All partner applications reviewed.
             </p>
           ) : (
             <div className="form-stack">
-              {verifications.map((item) => (
+              {pendingVerifications.map((item) => (
                 <div
                   key={item.id}
                   className="info-strip"
@@ -100,7 +105,7 @@ export function AdminDashboardPage() {
                       <Badge tone="forest">{item.type}</Badge>
                     </div>
                     <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                      ID: <span style={{ fontFamily: 'var(--font-mono)' }}>{item.darpanId || item.fssaiLicense || item.registrationNo}</span> • Area: {item.serviceArea} • Submitted {item.submittedAt}
+                      Registration No: <span style={{ fontFamily: 'var(--font-mono)' }}>{item.registrationNo}</span> • Area: {item.serviceArea} • Submitted {item.submittedAt}
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -108,7 +113,7 @@ export function AdminDashboardPage() {
                       size="sm"
                       onClick={() => handleVerifyOrg(item.id, item.organization)}
                     >
-                      Verify &amp; Activate
+                      Approve &amp; Activate
                     </Button>
                     <Button
                       variant="secondary"
@@ -126,7 +131,7 @@ export function AdminDashboardPage() {
       )}
 
       {section === 'donations' && (
-        <Card title="Active Network Batches" subtitle="Live food batches across all corridors.">
+        <Card title="Active Network Food Batches" subtitle="Live food surplus entries across all logistics zones.">
           <div className="table-wrap">
             <table className="editorial-table">
               <thead>
@@ -138,7 +143,7 @@ export function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_DONATIONS.map((d) => (
+                {donations.map((d) => (
                   <tr key={d.id}>
                     <td>
                       <strong>{d.title}</strong>
@@ -158,7 +163,7 @@ export function AdminDashboardPage() {
       )}
 
       {section === 'audit' && (
-        <Card title="Immutable Audit Trail" subtitle="System records and admin decisions.">
+        <Card title="Audit Trail" subtitle="System records and administrative actions.">
           <div className="table-wrap">
             <table className="editorial-table">
               <thead>

@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
 import { PageContainer, Card, Badge, Button, Modal } from '../components/ui';
-import { MOCK_DONATIONS } from '../data/mockData';
+import { getStoredDonations, addStoredRequest } from '../data/store';
 
 export function DonationDetailsPage({ donationId, onNavigate }) {
-  const donation =
-    MOCK_DONATIONS.find((d) => d.id === donationId) || MOCK_DONATIONS[0];
+  const donations = getStoredDonations();
+  const donation = donations.find((d) => d.id === donationId) || donations[0];
   const [isRequested, setIsRequested] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleClaim = () => {
     setIsRequested(true);
+    addStoredRequest({
+      donationId: donation.id,
+      donationTitle: donation.title,
+      ngoName: 'Local Relief Kitchen',
+      servingsNeeded: donation.quantity || 50,
+      urgency: donation.urgency || 'HIGH',
+      status: 'PENDING',
+    });
     setModalOpen(true);
   };
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
 import MainLayout from './layouts/MainLayout';
 import LandingPage from './pages/LandingPage';
 import SignupPage from './pages/SignupPage';
@@ -58,9 +59,11 @@ export function App() {
 
   return (
     <ThemeProvider>
-      <MainLayout currentPage={currentPage} onNavigate={handleNavigate}>
-        {renderPage()}
-      </MainLayout>
+      <AuthProvider>
+        <MainLayout currentPage={currentPage} onNavigate={handleNavigate}>
+          {renderPage()}
+        </MainLayout>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

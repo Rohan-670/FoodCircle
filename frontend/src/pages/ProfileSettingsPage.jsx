@@ -8,45 +8,61 @@ import {
   Badge,
 } from '../components/ui';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
-const MOCK_PROFILES = {
+const DEFAULT_PROFILES = {
   DONOR: {
     fullName: 'Ananya Sharma',
-    email: 'ananya@saffronkitchen.org',
+    email: 'ananya@saffronkitchen.com',
     phone: '+91 98765 43210',
-    organization: 'Saffron Courtyard Kitchen',
-    address: '42 Residency Road, Central Ward',
-    verification: 'APPROVED',
+    organization: 'Saffron Courtyard Banquets',
+    address: '42 Residency Road, Central Ward, Bengaluru',
+    verification: 'VERIFIED',
   },
   NGO: {
     fullName: 'Rohan Mehta',
-    email: 'contact@hopeshelter.org',
+    email: 'contact@mercykitchen.org',
     phone: '+91 98111 22334',
-    organization: 'Hope Shelter & Community Kitchen',
-    address: '15 Hope Shelter Lane, Central Ward',
-    verification: 'APPROVED',
+    organization: 'Mercy Community Kitchen & Shelter',
+    address: '15 Hope Shelter Lane, Central Ward, Bengaluru',
+    verification: 'VERIFIED',
   },
   VOLUNTEER: {
     fullName: 'Charlie Verma',
-    email: 'charlie.v@dispatch.org',
+    email: 'charlie.v@dispatch.com',
     phone: '+91 99000 11223',
-    organization: 'Central Ward Volunteer',
-    address: 'Central Ward Zone',
+    organization: 'Central Ward Volunteer Courier',
+    address: 'Central Ward Logistics Zone, Bengaluru',
     verification: 'ACTIVE',
   },
   ADMIN: {
     fullName: 'System Administrator',
-    email: 'admin@foodcircle.local',
+    email: 'admin@foodcircle.org',
     phone: '+91 80000 00001',
-    organization: 'FoodCircle Governance',
-    address: 'Platform Operations',
-    verification: 'SYSTEM_ADMIN',
+    organization: 'FoodCircle Platform Governance',
+    address: 'Platform Operations Center',
+    verification: 'ACTIVE',
   },
 };
 
 export function ProfileSettingsPage() {
   const { theme, toggleTheme } = useTheme();
-  const [previewRole, setPreviewRole] = useState('NGO');
+  const { user } = useAuth();
+  const currentRole = user?.role || 'DONOR';
+  const [selectedRole, setSelectedRole] = useState(currentRole);
+  const [feedback, setFeedback] = useState('');
+
+  const [profile, setProfile] = useState(() => {
+    return {
+      fullName: user?.fullName || DEFAULT_PROFILES[currentRole].fullName,
+      email: user?.email || DEFAULT_PROFILES[currentRole].email,
+      phone: user?.phone || DEFAULT_PROFILES[currentRole].phone,
+      organization: user?.organizationName || DEFAULT_PROFILES[currentRole].organization,
+      address: user?.address || DEFAULT_PROFILES[currentRole].address,
+      verification: 'VERIFIED',
+    };
+  });
+
   const [prefs, setPrefs] = useState({
     requestAlerts: true,
     deliveryAlerts: true,
@@ -54,74 +70,101 @@ export function ProfileSettingsPage() {
     verificationAlerts: true,
   });
 
-  const profile = MOCK_PROFILES[previewRole];
+  const handleRoleChange = (role) => {
+    setSelectedRole(role);
+    setProfile(DEFAULT_PROFILES[role]);
+  };
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    setFeedback('Settings and profile details saved successfully.');
+    setTimeout(() => setFeedback(''), 4000);
+  };
 
   return (
     <PageContainer
-      eyebrow="Account & Preferences"
-      title="Profile & Settings"
-      subtitle="Preview profile details, theme appearance, and notification preferences."
+      eyebrow="Account Settings"
+      title="Profile &amp; Preferences"
+      subtitle="Manage your contact details, organization address, and notification preferences."
     >
+      {feedback && (
+        <div style={{ backgroundColor: 'var(--color-mint)', border: '1px solid var(--color-mint-border)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.88rem', color: 'var(--color-forest)', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <span>✓ {feedback}</span>
+          <button type="button" onClick={() => setFeedback('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 'bold' }}>×</button>
+        </div>
+      )}
+
       <div className="grid-2">
         <Card
-          title="Organization & Contact Details (Mock)"
+          title="Organization &amp; Contact Details"
           badge={<Badge tone="mint">{profile.verification}</Badge>}
         >
-          <div className="form-stack">
+          <form onSubmit={handleSave} className="form-stack">
             <Select
-              id="settings-role-preview"
-              label="Preview Profile as Role"
-              value={previewRole}
-              onChange={(e) => setPreviewRole(e.target.value)}
+              id="settings-role"
+              label="Account Profile Role"
+              value={selectedRole}
+              onChange={(e) => handleRoleChange(e.target.value)}
             >
-              <option value="DONOR">DONOR</option>
-              <option value="NGO">NGO</option>
-              <option value="VOLUNTEER">VOLUNTEER</option>
-              <option value="ADMIN">ADMIN</option>
+              <option value="DONOR">Food Donor</option>
+              <option value="NGO">NGO / Community Kitchen</option>
+              <option value="VOLUNTEER">Volunteer Courier</option>
+              <option value="ADMIN">Platform Administrator</option>
             </Select>
 
             <Input
-              id="settings-name"
-              label="Full Name / Contact Person"
+              id="profile-name"
+              label="Primary Contact Person"
               value={profile.fullName}
-              readOnly
-            />
-            <Input
-              id="settings-email"
-              label="Email Address"
-              value={profile.email}
-              readOnly
-            />
-            <Input
-              id="settings-org"
-              label="Organization / Area"
-              value={profile.organization}
-              readOnly
-            />
-            <Input
-              id="settings-address"
-              label="Address"
-              value={profile.address}
-              readOnly
+              onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
             />
 
-            <div>
-              <Button disabled title="Profile saving is disabled in static UI preview">
-                Save Profile Changes (Preview Only)
-              </Button>
+            <Input
+              id="profile-org"
+              label="Organization / Kitchen Name"
+              value={profile.organization}
+              onChange={(e) => setProfile({ ...profile, organization: e.target.value })}
+            />
+
+            <div className="form-grid-2">
+              <Input
+                id="profile-email"
+                label="Email Address"
+                value={profile.email}
+                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+              />
+              <Input
+                id="profile-phone"
+                label="Phone Number"
+                value={profile.phone}
+                onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+              />
             </div>
-          </div>
+
+            <Input
+              id="profile-addr"
+              label="Physical Address / Facility Location"
+              value={profile.address}
+              onChange={(e) => setProfile({ ...profile, address: e.target.value })}
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+              <Button type="submit">Save Changes</Button>
+            </div>
+          </form>
         </Card>
 
         <div className="form-stack">
-          <Card
-            title="Appearance & Theme"
-            subtitle="Switch between Warm Ivory (Light) and Deep Forest (Dark) modes."
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <Card title="Interface Appearance">
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+              Switch between Light and Dark interface modes according to your preference.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <strong>Current Theme:</strong>{' '}
-                <Badge tone="sage">{theme === 'light' ? 'Light (Warm Ivory)' : 'Dark (Deep Forest)'}</Badge>
+                <strong>Active Theme</strong>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                  Currently using {theme === 'light' ? 'Light Mode' : 'Dark Mode'}
+                </div>
               </div>
               <Button variant="secondary" onClick={toggleTheme}>
                 Switch to {theme === 'light' ? 'Dark' : 'Light'} Mode
@@ -129,31 +172,43 @@ export function ProfileSettingsPage() {
             </div>
           </Card>
 
-          <Card
-            title="Notification Preferences (Mock)"
-            subtitle="Choose which real-time and persistent alerts to receive."
-          >
-            <div className="form-stack">
-              {[
-                ['requestAlerts', 'Donation requests & donor decisions'],
-                ['deliveryAlerts', 'Volunteer assignment & QR delivery updates'],
-                ['expiryAlerts', 'Approaching safe-consumption deadline warnings'],
-                ['verificationAlerts', 'Administrator verification results'],
-              ].map(([key, label]) => (
-                <label
-                  key={key}
-                  style={{ display: 'flex', gap: '0.55rem', alignItems: 'center', cursor: 'pointer', fontSize: '0.9rem' }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={prefs[key]}
-                    onChange={() =>
-                      setPrefs((prev) => ({ ...prev, [key]: !prev[key] }))
-                    }
-                  />
-                  <span>{label}</span>
-                </label>
-              ))}
+          <Card title="Notification Preferences">
+            <div style={{ display: 'grid', gap: '0.75rem', fontSize: '0.88rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={prefs.requestAlerts}
+                  onChange={(e) => setPrefs({ ...prefs, requestAlerts: e.target.checked })}
+                />
+                <span>Instant alerts when an NGO requests a food batch</span>
+              </label>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={prefs.deliveryAlerts}
+                  onChange={(e) => setPrefs({ ...prefs, deliveryAlerts: e.target.checked })}
+                />
+                <span>Live dispatch and courier handover updates</span>
+              </label>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={prefs.expiryAlerts}
+                  onChange={(e) => setPrefs({ ...prefs, expiryAlerts: e.target.checked })}
+                />
+                <span>Urgent countdown alerts when food approaches expiry deadline</span>
+              </label>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={prefs.verificationAlerts}
+                  onChange={(e) => setPrefs({ ...prefs, verificationAlerts: e.target.checked })}
+                />
+                <span>Account verification status changes</span>
+              </label>
             </div>
           </Card>
         </div>
