@@ -108,6 +108,9 @@ const updateProfileSchema = z.object({
   serviceArea: z.string().trim().min(2).optional(),
   registrationNumber: z.string().trim().min(2).optional().nullable(),
   capacity: z.coerce.number().int().positive().optional().nullable(),
+  preferredCategories: z.array(z.string().trim().min(1)).optional(),
+  requiredQuantity: z.coerce.number().int().positive().optional().nullable(),
+  currentRequirements: z.string().trim().max(500).optional().nullable(),
   // Volunteer fields
   vehicleType: z.string().trim().min(2).optional().nullable(),
   isAvailable: z.boolean().optional(),

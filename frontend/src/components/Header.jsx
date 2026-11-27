@@ -51,6 +51,15 @@ export function Header({ currentPage, onNavigate }) {
                 Browse Donations
               </button>
             )}
+            {(user.role === 'DONOR' || user.role === 'NGO') && (
+              <button
+                type="button"
+                className={`nav-button ${currentPage === 'recommendations' ? 'nav-active' : ''}`}
+                onClick={() => onNavigate('recommendations')}
+              >
+                Recommendations
+              </button>
+            )}
             <button
               type="button"
               className={`nav-button ${currentPage === 'profile' ? 'nav-active' : ''}`}

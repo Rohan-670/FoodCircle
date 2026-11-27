@@ -52,7 +52,13 @@ enum NotificationType {
   REQUEST_REJECTED
   DELIVERY_ASSIGNED
   DELIVERY_COMPLETED
+  RECOMMENDATION_INVITE
   SYSTEM_ALERT
+}
+
+enum RecommendationAction {
+  ACCEPTED
+  IGNORED
 }
 
 // ==========================================
@@ -98,19 +104,22 @@ model DonorProfile {
 }
 
 model NGOProfile {
-  id                 String   @id @default(uuid())
-  userId             String   @unique
-  organizationName   String
-  contactPerson      String
-  registrationNumber String?  @unique
-  address            String
-  serviceArea        String
-  latitude           Float?
-  longitude          Float?
-  capacity           Int?
-  isVerified         Boolean  @default(false)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  organizationName    String
+  contactPerson       String
+  registrationNumber  String?  @unique
+  address             String
+  serviceArea         String
+  latitude            Float?
+  longitude           Float?
+  capacity            Int?
+  preferredCategories String[] @default([])
+  requiredQuantity    Int?
+  currentRequirements String?
+  isVerified          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   donationRequests DonationRequest[]
@@ -209,4 +218,16 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
+}
+
+model RecommendationFeedback {
+  id         String               @id @default(uuid())
+  userId     String
+  donationId String
+  ngoId      String
+  action     RecommendationAction
+  createdAt  DateTime             @default(now())
+
+  @@unique([userId, donationId, ngoId])
+  @@index([userId, action])
 }

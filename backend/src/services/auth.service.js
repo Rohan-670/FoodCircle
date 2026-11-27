@@ -202,6 +202,12 @@ async function updateProfile(userId, role, updates) {
       if (updates.latitude !== undefined) ngoUpdates.latitude = updates.latitude;
       if (updates.longitude !== undefined) ngoUpdates.longitude = updates.longitude;
       if (updates.capacity !== undefined) ngoUpdates.capacity = updates.capacity;
+      if (updates.preferredCategories !== undefined)
+        ngoUpdates.preferredCategories = updates.preferredCategories;
+      if (updates.requiredQuantity !== undefined)
+        ngoUpdates.requiredQuantity = updates.requiredQuantity;
+      if (updates.currentRequirements !== undefined)
+        ngoUpdates.currentRequirements = updates.currentRequirements;
 
       if (Object.keys(ngoUpdates).length > 0) {
         await tx.nGOProfile.update({

@@ -7,6 +7,7 @@ import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import DonorDashboardPage from './pages/DonorDashboardPage';
 import NgoBrowsePage from './pages/NgoBrowsePage';
+import RecommendationsPage from './pages/RecommendationsPage';
 import './styles/App.css';
 
 function AppContent() {
@@ -24,6 +25,8 @@ function AppContent() {
         return <DonorDashboardPage />;
       case 'ngo-browse':
         return <NgoBrowsePage />;
+      case 'recommendations':
+        return <RecommendationsPage />;
       default:
         return <HomePage />;
     }
